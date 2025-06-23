@@ -19,6 +19,20 @@
         .connected { background: #cfc; }
         .disconnected { background: #fcc; }
         .connecting { background: #ffc; }
+        #track-timer {
+            font-size: 1.5em;
+            margin: 20px 0;
+            padding: 10px;
+            background: #e0e0ff;
+            border-radius: 5px;
+        }
+        #track-info {
+            font-size: 1em;
+            margin: 10px 0;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -29,14 +43,22 @@
     </div>
 
     <div id="time-display">Waiting for connection...</div>
+    
+    <div id="track-info">No track playing</div>
+    <div id="track-timer">--:--</div>
 
     <script>
         const statusEl = document.getElementById('connection-status');
         const timeEl = document.getElementById('time-display');
+        const trackTimerEl = document.getElementById('track-timer');
+        const trackInfoEl = document.getElementById('track-info');
         let lastMessage = '';
         let reconnectAttempts = 0;
         const maxReconnectAttempts = 5;
         const reconnectDelay = 3000; // 3 seconds
+        let countdownInterval = null;
+        let currentCountdown = 0;
+        let lastTrackData = null;
 
         // Format JSON for nice console output
         function formatForConsole(data) {
@@ -49,6 +71,65 @@
             // Alternative formatted output
             console.log('%cWebSocket Data:', 'color: #4CAF50; font-weight: bold', 
                 JSON.stringify(data, null, 2));
+        }
+
+        // Format seconds to MM:SS
+        function formatTime(seconds) {
+            const mins = Math.floor(Math.abs(seconds) / 60);
+            const secs = Math.floor(Math.abs(seconds) % 60);
+            const sign = seconds < 0 ? '-' : '';
+            return `${sign}${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Start or update the countdown timer
+        function updateCountdown(data) {
+            // Clear any existing interval
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+            }
+            
+            // Extract filename from track path
+            const filename = data.track.split('/').pop();
+            
+            if (data.status === 'start') {
+                trackInfoEl.textContent = `Now playing: ${filename}`;
+                currentCountdown = data.file_duration;
+                trackTimerEl.textContent = formatTime(currentCountdown);
+                
+                // Start countdown from file_duration
+                countdownInterval = setInterval(() => {
+                    currentCountdown -= 1;
+                    trackTimerEl.textContent = formatTime(currentCountdown);
+                    
+                    if (currentCountdown <= 0) {
+                        clearInterval(countdownInterval);
+                        countdownInterval = null;
+                    }
+                }, 1000);
+                
+            } else if (data.status === 'playing') {
+                trackInfoEl.textContent = `Now playing: ${filename}`;
+                currentCountdown = data.remaining_time;
+                trackTimerEl.textContent = formatTime(currentCountdown);
+                
+                // Start countdown from remaining_time
+                countdownInterval = setInterval(() => {
+                    currentCountdown -= 1;
+                    trackTimerEl.textContent = formatTime(currentCountdown);
+                    
+                    if (currentCountdown <= 0) {
+                        clearInterval(countdownInterval);
+                        countdownInterval = null;
+                    }
+                }, 1000);
+            } else {
+                // For other statuses, just display the track info without countdown
+                trackInfoEl.textContent = `Track info: ${filename}`;
+                trackTimerEl.textContent = '--:--';
+            }
+            
+            lastTrackData = data;
         }
 
         // WebSocket connection management
@@ -70,6 +151,11 @@
                     const data = JSON.parse(event.data);
                     formatForConsole(data); // Log to console
                     updateTime(data);
+                    
+                    // Update countdown if we have track data
+                    if (data.status === 'start' || data.status === 'playing') {
+                        updateCountdown(data);
+                    }
                 } catch (e) {
                     console.error('Error parsing WebSocket message:', e);
                     console.log('Raw message:', event.data);
@@ -89,6 +175,13 @@
                     timeEl.textContent = 'Connection failed. Please refresh the page.';
                     console.error('Max reconnection attempts reached');
                 }
+                
+                // Clear the countdown when disconnected
+                if (countdownInterval) {
+                    clearInterval(countdownInterval);
+                    countdownInterval = null;
+                }
+                trackTimerEl.textContent = '--:-- (disconnected)';
             };
 
             ws.onerror = (error) => {
