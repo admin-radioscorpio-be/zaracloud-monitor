@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Time Stream</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        #time-display {
+            font-size: 2em;
+            margin: 20px 0;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+        }
+        #connection-status {
+            padding: 5px 10px;
+            border-radius: 3px;
+            margin-bottom: 20px;
+        }
+        .connected { background: #cfc; }
+        .disconnected { background: #fcc; }
+        .connecting { background: #ffc; }
+    </style>
+</head>
+<body>
+    <h1>Radio Automation Monitor</h1>
+
+    <div>
+        Connection status: <span id="connection-status" class="connecting">Connecting...</span>
+    </div>
+
+    <div id="time-display">Waiting for connection...</div>
+
+    <script>
+        const statusEl = document.getElementById('connection-status');
+        const timeEl = document.getElementById('time-display');
+        let lastMessage = '';
+        let reconnectAttempts = 0;
+        const maxReconnectAttempts = 5;
+        const reconnectDelay = 3000; // 3 seconds
+
+        // WebSocket connection management
+        function connectWebSocket() {
+            const ws = new WebSocket('wss://zaracloud.kaboutersoft.be/ws');
+            statusEl.textContent = 'Connecting...';
+            statusEl.className = 'connecting';
+
+            ws.onopen = () => {
+                statusEl.textContent = 'Connected';
+                statusEl.className = 'connected';
+                timeEl.textContent = 'Waiting for first update...';
+                reconnectAttempts = 0; // Reset on successful connection
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    updateTime(data);
+                } catch (e) {
+                    console.error('Error parsing WebSocket message:', e);
+                }
+            };
+
+            ws.onclose = (event) => {
+                statusEl.textContent = 'Disconnected';
+                statusEl.className = 'disconnected';
+
+                // Auto-reconnect logic
+                if (reconnectAttempts < maxReconnectAttempts) {
+                    reconnectAttempts++;
+                    timeEl.textContent = `Reconnecting in ${reconnectDelay/1000} seconds (attempt ${reconnectAttempts}/${maxReconnectAttempts})...`;
+                    setTimeout(connectWebSocket, reconnectDelay);
+                } else {
+                    timeEl.textContent = 'Connection failed. Please refresh the page.';
+                }
+            };
+
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+                statusEl.textContent = 'Connection error';
+            };
+
+            return ws;
+        }
+
+        // Update UI with new data
+        function updateTime(data) {
+            const date = new Date(data.utc * 1000);
+
+            // Update stored message if new one exists
+            if (data.messages) {
+                lastMessage = data.messages;
+            }
+
+            timeEl.innerHTML = `
+                ${lastMessage ? `message: ${lastMessage}<br>` : ''}
+                Server Time: ${data.iso}<br>
+                Local Time: ${date.toLocaleString()}<br>
+                Unix Timestamp: ${data.utc}
+            `;
+        }
+
+        // Initialize connection when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            connectWebSocket();
+        });
+    </script>
+</body>
+</html>
