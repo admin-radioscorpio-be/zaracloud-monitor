@@ -201,10 +201,10 @@
             }
 
             timeEl.innerHTML = `
-                ${lastMessage ? `message: ${lastMessage}<br>` : ''}
                 Server Time: ${data.iso}<br>
+                <br>
                 Local Time: ${date.toLocaleString()}<br>
-                Unix Timestamp: ${data.utc}
+               
             `;
         }
 
