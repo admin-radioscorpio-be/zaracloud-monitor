@@ -38,6 +38,19 @@
         const maxReconnectAttempts = 5;
         const reconnectDelay = 3000; // 3 seconds
 
+        // Format JSON for nice console output
+        function formatForConsole(data) {
+            console.groupCollapsed('WebSocket Message Received');
+            console.log('Timestamp:', new Date().toISOString());
+            console.log('Status:', data.status || 'Unknown');
+            console.log('Full Data:', data);
+            console.groupEnd();
+            
+            // Alternative formatted output
+            console.log('%cWebSocket Data:', 'color: #4CAF50; font-weight: bold', 
+                JSON.stringify(data, null, 2));
+        }
+
         // WebSocket connection management
         function connectWebSocket() {
             const ws = new WebSocket('wss://zaracloud.kaboutersoft.be/ws');
@@ -48,34 +61,38 @@
                 statusEl.textContent = 'Connected';
                 statusEl.className = 'connected';
                 timeEl.textContent = 'Waiting for first update...';
-                reconnectAttempts = 0; // Reset on successful connection
+                reconnectAttempts = 0;
+                console.log('%cWebSocket Connected', 'color: green; font-weight: bold');
             };
 
             ws.onmessage = (event) => {
                 try {
                     const data = JSON.parse(event.data);
+                    formatForConsole(data); // Log to console
                     updateTime(data);
                 } catch (e) {
                     console.error('Error parsing WebSocket message:', e);
+                    console.log('Raw message:', event.data);
                 }
             };
 
             ws.onclose = (event) => {
                 statusEl.textContent = 'Disconnected';
                 statusEl.className = 'disconnected';
+                console.log('%cWebSocket Disconnected', 'color: orange; font-weight: bold', event);
 
-                // Auto-reconnect logic
                 if (reconnectAttempts < maxReconnectAttempts) {
                     reconnectAttempts++;
                     timeEl.textContent = `Reconnecting in ${reconnectDelay/1000} seconds (attempt ${reconnectAttempts}/${maxReconnectAttempts})...`;
                     setTimeout(connectWebSocket, reconnectDelay);
                 } else {
                     timeEl.textContent = 'Connection failed. Please refresh the page.';
+                    console.error('Max reconnection attempts reached');
                 }
             };
 
             ws.onerror = (error) => {
-                console.error('WebSocket error:', error);
+                console.error('%cWebSocket Error:', 'color: red; font-weight: bold', error);
                 statusEl.textContent = 'Connection error';
             };
 
@@ -86,7 +103,6 @@
         function updateTime(data) {
             const date = new Date(data.utc * 1000);
 
-            // Update stored message if new one exists
             if (data.messages) {
                 lastMessage = data.messages;
             }
@@ -101,6 +117,7 @@
 
         // Initialize connection when page loads
         window.addEventListener('DOMContentLoaded', () => {
+            console.log('%cInitializing WebSocket Connection...', 'color: blue; font-weight: bold');
             connectWebSocket();
         });
     </script>
