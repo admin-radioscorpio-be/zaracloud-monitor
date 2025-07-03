@@ -1,77 +1,413 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>WebSocket Time Stream</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Instance ZaraCloud Monitor</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        #time-display {
-            font-size: 1em;
-            margin: 20px 0;
-            padding: 10px;
-            background: #f0f0f0;
-            border-radius: 5px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        #connection-status {
-            padding: 5px 10px;
-            border-radius: 3px;
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        header {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 25px;
+            text-align: center;
+            border-bottom: 2px solid #4CAF50;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            color: #4CAF50;
+            text-shadow: 0 0 10px rgba(76, 175, 80, 0.7);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 20px;
+            background: rgba(30, 30, 40, 0.8);
+            border-bottom: 1px solid #444;
+        }
+        
+        .instance-btn {
+            background: linear-gradient(to right, #2196F3, #21CBF3);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .instance-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+        }
+        
+        .instance-btn.active {
+            background: linear-gradient(to right, #4CAF50, #8BC34A);
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.7);
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 25px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .panel {
+            background: rgba(30, 30, 40, 0.8);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .panel-header {
+            color: #2196F3;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #444;
+            display: flex;
+            align-items: center;
+        }
+        
+        .panel-header i {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .status-box {
+            display: flex;
+            justify-content: space-between;
             margin-bottom: 20px;
         }
-        .connected { background: #cfc; }
-        .disconnected { background: #fcc; }
-        .connecting { background: #ffc; }
-        #track-timer {
-            font-size: 1em;
-            margin: 20px 0;
-            padding: 10px;
-            background: #f0f0f0;
-            border-radius: 5px;
+        
+        .status-item {
+            flex: 1;
+            padding: 15px;
+            margin: 0 10px;
+            border-radius: 8px;
+            background: rgba(40, 40, 50, 0.9);
+            text-align: center;
         }
-        #track-info {
-            font-size: 1em;
-            margin: 20px 0;
-            padding: 10px;
-            background: #f0f0f0;
+        
+        .status-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #4CAF50;
+            margin-top: 5px;
+        }
+        
+        #connection-status {
+            padding: 10px 15px;
             border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .connected { 
+            background: linear-gradient(to right, #2E7D32, #4CAF50);
+            color: white;
+        }
+        
+        .disconnected { 
+            background: linear-gradient(to right, #c62828, #f44336);
+            color: white;
+        }
+        
+        .connecting { 
+            background: linear-gradient(to right, #FF8F00, #FFC107);
+            color: white;
+        }
+        
+        #track-timer {
+            font-size: 3.5rem;
+            text-align: center;
+            padding: 20px;
+            margin: 20px 0;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 3px;
+            border: 2px solid #4CAF50;
+            font-weight: bold;
+        }
+        
+        #track-info {
+            font-size: 1.3rem;
+            padding: 15px;
+            background: rgba(40, 40, 50, 0.9);
+            border-radius: 8px;
+            min-height: 1.5em;
+            border-left: 4px solid #2196F3;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        #time-display {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            padding: 20px;
+            background: rgba(40, 40, 50, 0.9);
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .info-group {
+            margin-bottom: 15px;
+        }
+        
+        .info-label {
+            color: #FFC107;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 25px;
+            background: rgba(0, 0, 0, 0.8);
+            border-top: 1px solid #444;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        
+        .instructions {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(30, 30, 40, 0.8);
+            border-radius: 10px;
+        }
+        
+        .instructions h3 {
+            color: #FFC107;
+            margin-bottom: 15px;
+        }
+        
+        .instructions ul {
+            padding-left: 25px;
+            margin-bottom: 15px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .url-example {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            margin: 10px 0;
+            word-break: break-all;
         }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <h1>Radio Automation Monitor</h1>
-
-    <div>
-        Connection status: <span id="connection-status" class="connecting">Connecting...</span>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-cloud"></i> Multi-Instance ZaraCloud Monitor</h1>
+            <p class="subtitle">Monitor multiple ZaraCloud instances from a single interface</p>
+        </header>
+        
+        <div class="controls">
+            <button class="instance-btn active" data-host="radioscorpio.be">RadioScorpio Instance</button>
+            <button class="instance-btn" data-host="kaboutersoft.be">KabouterSoft Instance</button>
+            <button class="instance-btn" data-host="custom">Custom Instance</button>
+        </div>
+        
+        <div class="main-content">
+            <div class="panel">
+                <div class="panel-header">
+                    <i class="fas fa-broadcast-tower"></i>
+                    <h2>Connection Status</h2>
+                </div>
+                
+                <div class="status-box">
+                    <div class="status-item">
+                        <div>Current Instance</div>
+                        <div id="current-instance" class="status-value">radioscorpio.be</div>
+                    </div>
+                    <div class="status-item">
+                        <div>Reconnection Attempts</div>
+                        <div id="reconnect-count" class="status-value">0</div>
+                    </div>
+                </div>
+                
+                <div id="connection-status" class="connecting">Connecting to zaracloud.radioscorpio.be...</div>
+                
+                <div class="panel-header">
+                    <i class="fas fa-music"></i>
+                    <h2>Now Playing</h2>
+                </div>
+                
+                <div id="track-info">No track playing</div>
+                <div id="track-timer">--:--</div>
+            </div>
+            
+            <div class="panel">
+                <div class="panel-header">
+                    <i class="fas fa-clock"></i>
+                    <h2>Time Information</h2>
+                </div>
+                
+                <div id="time-display">
+                    <div class="info-group">
+                        <div class="info-label">Server Message:</div>
+                        <div id="server-message">Waiting for connection...</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">Server Time:</div>
+                        <div id="server-time">--/--/----, --:--:--</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">Local Time:</div>
+                        <div id="local-time">--/--/----, --:--:--</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">Unix Timestamp:</div>
+                        <div id="unix-time">0</div>
+                    </div>
+                </div>
+                
+                <div class="instructions">
+                    <h3><i class="fas fa-info-circle"></i> How to Use</h3>
+                    <p>This monitor supports multiple ZaraCloud instances:</p>
+                    <ul>
+                        <li>Use the buttons at the top to switch between instances</li>
+                        <li>Bookmark with specific instance using URL parameter:</li>
+                    </ul>
+                    <div class="url-example">https://your-github-page.com?instance=radioscorpio.be</div>
+                    <div class="url-example">https://your-github-page.com?instance=kaboutersoft.be</div>
+                    <p>For custom instances:</p>
+                    <div class="url-example">https://your-github-page.com?instance=custom&host=yourdomain.com</div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>ZaraCloud Monitoring System | Designed for GitHub Pages Deployment</p>
+            <p>Automatically detects instance from URL parameters</p>
+        </footer>
     </div>
 
-    <div id="time-display">Waiting for connection...</div>
-    
-    <div id="track-info">No track playing</div>
-    <div id="track-timer">--:--</div>
-
     <script>
+        // DOM elements
         const statusEl = document.getElementById('connection-status');
         const timeEl = document.getElementById('time-display');
         const trackTimerEl = document.getElementById('track-timer');
         const trackInfoEl = document.getElementById('track-info');
-        let lastMessage = '';
+        const reconnectCountEl = document.getElementById('reconnect-count');
+        const currentInstanceEl = document.getElementById('current-instance');
+        const serverMessageEl = document.getElementById('server-message');
+        const serverTimeEl = document.getElementById('server-time');
+        const localTimeEl = document.getElementById('local-time');
+        const unixTimeEl = document.getElementById('unix-time');
+        
+        // State variables
         let reconnectAttempts = 0;
-        const maxReconnectAttempts = 5;
+        const maxReconnectAttempts = 10;
         const reconnectDelay = 3000; // 3 seconds
         let countdownInterval = null;
-        let currentCountdownEndTime = 0; // When the countdown should reach 0 (in milliseconds)
-        let lastUpdateTime = 0; // When we last received an update (in milliseconds)
-        let lastTrackData = null;
+        let currentCountdownEndTime = 0;
+        let ws = null;
+        let currentHost = '';
+        
+        // Default hosts
+        const instances = {
+            'radioscorpio.be': 'zaracloud.radioscorpio.be',
+            'kaboutersoft.be': 'zaracloud.kaboutersoft.be'
+        };
 
-        // Format JSON for nice console output
-        function formatForConsole(data) {
-            console.groupCollapsed('WebSocket Message Received');
-            console.log('Timestamp:', new Date().toISOString());
-            console.log('Status:', data.status || 'Unknown');
-            console.log('Full Data:', data);
-            console.groupEnd();
+        // Initialize with URL parameters
+        function initFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const instanceParam = urlParams.get('instance');
+            const customHost = urlParams.get('host');
             
-            // Alternative formatted output
-            console.log('%cWebSocket Data:', 'color: #4CAF50; font-weight: bold', 
-                JSON.stringify(data, null, 2));
+            if (instanceParam === 'custom' && customHost) {
+                connectToInstance('custom', customHost);
+                updateButtonStates('custom');
+            } else if (instanceParam && instances[instanceParam]) {
+                connectToInstance(instanceParam, instances[instanceParam]);
+                updateButtonStates(instanceParam);
+            } else {
+                // Default connection
+                connectToInstance('radioscorpio.be', instances['radioscorpio.be']);
+                updateButtonStates('radioscorpio.be');
+            }
+        }
+
+        // Connect to a specific instance
+        function connectToInstance(instanceKey, host) {
+            // Close existing connection if any
+            if (ws && ws.readyState !== WebSocket.CLOSED) {
+                ws.close();
+            }
+            
+            // Reset state
+            reconnectAttempts = 0;
+            reconnectCountEl.textContent = '0';
+            currentHost = host;
+            currentInstanceEl.textContent = instanceKey === 'custom' ? host : instanceKey;
+            
+            // Update status
+            statusEl.textContent = `Connecting to ${host}...`;
+            statusEl.className = 'connecting';
+            trackInfoEl.textContent = 'No track playing';
+            trackTimerEl.textContent = '--:--';
+            serverMessageEl.textContent = 'Waiting for connection...';
+            
+            // Clear any existing interval
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+            }
+            
+            // Connect to WebSocket
+            connectWebSocket(host);
         }
 
         // Format seconds to MM:SS
@@ -100,96 +436,80 @@
             const now = Date.now();
             const remainingSeconds = (currentCountdownEndTime - now) / 1000;
             
-            // Only update if we have a valid countdown time
             if (currentCountdownEndTime > 0) {
                 trackTimerEl.textContent = formatTime(remainingSeconds);
                 
-                // If we've passed the end time, clear the interval
                 if (remainingSeconds <= 0) {
                     clearInterval(countdownInterval);
                     countdownInterval = null;
                     trackTimerEl.textContent = '00:00';
+                    trackInfoEl.textContent = 'Track finished';
                 }
             }
         }
 
         // Start or update the countdown timer
         function updateCountdown(data) {
-            // Clear any existing interval
             if (countdownInterval) {
                 clearInterval(countdownInterval);
                 countdownInterval = null;
             }
             
-            // Extract filename from track path
-            const filename = data.track.split('/').pop();
+            const filename = data.track.split('/').pop() || 'Unknown Track';
             trackInfoEl.textContent = `Now playing: ${filename}`;
             
             const now = Date.now();
-            lastUpdateTime = now;
             
             if (data.status === 'start') {
-                // For 'start' messages, count down from file_duration
                 currentCountdownEndTime = now + (data.file_duration * 1000);
             } else if (data.status === 'playing') {
-                // For 'playing' messages, use the remaining_time
                 currentCountdownEndTime = now + (data.remaining_time * 1000);
             }
             
-            // Update immediately
             updateTimerDisplay();
-            
-            // Start the countdown interval (100ms for smoother updates)
             countdownInterval = setInterval(updateTimerDisplay, 100);
-            
-            lastTrackData = data;
         }
 
         // WebSocket connection management
-        function connectWebSocket() {
-            const ws = new WebSocket('wss://zaracloud.kaboutersoft.be/ws');
-            statusEl.textContent = 'Connecting...';
-            statusEl.className = 'connecting';
+        function connectWebSocket(host) {
+            const wsUrl = `wss://${host}/ws`;
+            
+            ws = new WebSocket(wsUrl);
 
             ws.onopen = () => {
-                statusEl.textContent = 'Connected';
+                statusEl.textContent = `Connected to ${host}`;
                 statusEl.className = 'connected';
-                timeEl.textContent = 'Waiting for first update...';
+                serverMessageEl.textContent = 'Waiting for first update...';
                 reconnectAttempts = 0;
-                console.log('%cWebSocket Connected', 'color: green; font-weight: bold');
+                reconnectCountEl.textContent = '0';
             };
 
             ws.onmessage = (event) => {
                 try {
                     const data = JSON.parse(event.data);
-                    formatForConsole(data); // Log to console
-                    updateTime(data);
+                    updateUI(data);
                     
-                    // Update countdown if we have track data
                     if (data.status === 'start' || data.status === 'playing') {
                         updateCountdown(data);
                     }
                 } catch (e) {
                     console.error('Error parsing WebSocket message:', e);
-                    console.log('Raw message:', event.data);
                 }
             };
 
             ws.onclose = (event) => {
-                statusEl.textContent = 'Disconnected';
+                statusEl.textContent = `Disconnected from ${host}`;
                 statusEl.className = 'disconnected';
-                console.log('%cWebSocket Disconnected', 'color: orange; font-weight: bold', event);
 
                 if (reconnectAttempts < maxReconnectAttempts) {
                     reconnectAttempts++;
-                    timeEl.textContent = `Reconnecting in ${reconnectDelay/1000} seconds (attempt ${reconnectAttempts}/${maxReconnectAttempts})...`;
-                    setTimeout(connectWebSocket, reconnectDelay);
+                    reconnectCountEl.textContent = reconnectAttempts;
+                    serverMessageEl.textContent = `Reconnecting in ${reconnectDelay/1000} seconds (attempt ${reconnectAttempts}/${maxReconnectAttempts})...`;
+                    setTimeout(() => connectWebSocket(host), reconnectDelay);
                 } else {
-                    timeEl.textContent = 'Connection failed. Please refresh the page.';
-                    console.error('Max reconnection attempts reached');
+                    serverMessageEl.textContent = 'Connection failed. Please try another instance.';
                 }
                 
-                // Clear the countdown when disconnected
                 if (countdownInterval) {
                     clearInterval(countdownInterval);
                     countdownInterval = null;
@@ -198,42 +518,84 @@
             };
 
             ws.onerror = (error) => {
-                console.error('%cWebSocket Error:', 'color: red; font-weight: bold', error);
-                statusEl.textContent = 'Connection error';
+                statusEl.textContent = `Error connecting to ${host}`;
+                statusEl.className = 'disconnected';
             };
-
-            return ws;
         }
 
         // Update UI with new data
-        function updateTime(data) {
+        function updateUI(data) {
             const date = new Date(data.utc * 1000);
-
+            
+            // Update server message
             if (data.messages) {
-                lastMessage = data.messages;
+                serverMessageEl.textContent = data.messages;
             }
-
-            timeEl.innerHTML = `
-                ${lastMessage ? `message: ${lastMessage}<br>` : ''}
-                Server Time: ${formatISOTime(data.iso)}<br>
-                <br>
-                Local Time: ${date.toLocaleString('en-GB', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: false
-                })}<br>
-                Unix Timestamp: ${data.utc}
-            `;
+            
+            // Update server time
+            if (data.iso) {
+                serverTimeEl.textContent = formatISOTime(data.iso);
+            }
+            
+            // Update local time
+            localTimeEl.textContent = date.toLocaleString('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+            
+            // Update Unix timestamp
+            unixTimeEl.textContent = data.utc;
         }
 
-        // Initialize connection when page loads
+        // Update button states
+        function updateButtonStates(activeInstance) {
+            document.querySelectorAll('.instance-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.host === activeInstance) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // Initialize when page loads
         window.addEventListener('DOMContentLoaded', () => {
-            console.log('%cInitializing WebSocket Connection...', 'color: blue; font-weight: bold');
-            connectWebSocket();
+            // Set up instance buttons
+            document.querySelectorAll('.instance-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const instance = btn.dataset.host;
+                    
+                    if (instance === 'custom') {
+                        const customHost = prompt('Enter your custom host (e.g., zaracloud.yourdomain.com):', 'zaracloud.example.com');
+                        if (customHost) {
+                            // Update URL
+                            const newUrl = new URL(window.location);
+                            newUrl.searchParams.set('instance', 'custom');
+                            newUrl.searchParams.set('host', customHost);
+                            window.history.pushState({}, '', newUrl);
+                            
+                            connectToInstance('custom', customHost);
+                            updateButtonStates('custom');
+                        }
+                    } else {
+                        // Update URL
+                        const newUrl = new URL(window.location);
+                        newUrl.searchParams.set('instance', instance);
+                        newUrl.searchParams.delete('host');
+                        window.history.pushState({}, '', newUrl);
+                        
+                        connectToInstance(instance, instances[instance]);
+                        updateButtonStates(instance);
+                    }
+                });
+            });
+            
+            // Initialize from URL parameters
+            initFromURL();
         });
     </script>
 </body>
