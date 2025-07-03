@@ -59,28 +59,7 @@
             border-bottom: 1px solid #444;
         }
         
-        .instance-btn {
-            background: linear-gradient(to right, #2196F3, #21CBF3);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 50px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        }
-        
-        .instance-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
-        }
-        
-        .instance-btn.active {
-            background: linear-gradient(to right, #4CAF50, #8BC34A);
-            box-shadow: 0 0 15px rgba(76, 175, 80, 0.7);
-        }
+      
         
         .main-content {
             display: grid;
@@ -252,11 +231,7 @@
             <p class="subtitle">Monitor multiple ZaraCloud instances from a single interface</p>
         </header>
         
-        <div class="controls">
-            <button class="instance-btn active" data-host="radioscorpio.be">RadioScorpio Instance</button>
-            <button class="instance-btn" data-host="kaboutersoft.be">KabouterSoft Instance</button>
-            <button class="instance-btn" data-host="custom">Custom Instance</button>
-        </div>
+      
         
         <div class="main-content">
             <div class="panel">
@@ -552,47 +527,11 @@
             unixTimeEl.textContent = data.utc;
         }
 
-        // Update button states
-        function updateButtonStates(activeInstance) {
-            document.querySelectorAll('.instance-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.dataset.host === activeInstance) {
-                    btn.classList.add('active');
-                }
-            });
-        }
+       
 
         // Initialize when page loads
         window.addEventListener('DOMContentLoaded', () => {
-            // Set up instance buttons
-            document.querySelectorAll('.instance-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const instance = btn.dataset.host;
-                    
-                    if (instance === 'custom') {
-                        const customHost = prompt('Enter your custom host (e.g., zaracloud.yourdomain.com):', 'zaracloud.example.com');
-                        if (customHost) {
-                            // Update URL
-                            const newUrl = new URL(window.location);
-                            newUrl.searchParams.set('instance', 'custom');
-                            newUrl.searchParams.set('host', customHost);
-                            window.history.pushState({}, '', newUrl);
-                            
-                            connectToInstance('custom', customHost);
-                            updateButtonStates('custom');
-                        }
-                    } else {
-                        // Update URL
-                        const newUrl = new URL(window.location);
-                        newUrl.searchParams.set('instance', instance);
-                        newUrl.searchParams.delete('host');
-                        window.history.pushState({}, '', newUrl);
-                        
-                        connectToInstance(instance, instances[instance]);
-                        updateButtonStates(instance);
-                    }
-                });
-            });
+            
             
             // Initialize from URL parameters
             initFromURL();
