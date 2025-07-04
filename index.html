@@ -415,6 +415,20 @@
             countdownInterval = setInterval(updateTimerDisplay, 100);
         }
 
+
+        // Format JSON for nice console output
+        function formatForConsole(data) {
+            console.groupCollapsed('WebSocket Message Received');
+            console.log('Timestamp:', new Date().toISOString());
+            console.log('Status:', data.status || 'Unknown');
+            console.log('Full Data:', data);
+            console.groupEnd();
+            
+            // Alternative formatted output
+            console.log('%cWebSocket Data:', 'color: #4CAF50; font-weight: bold', 
+                JSON.stringify(data, null, 2));
+        }
+
         // WebSocket connection management
         function connectWebSocket(host) {
             const wsUrl = `wss://${host}/ws`;
@@ -432,6 +446,7 @@
             ws.onmessage = (event) => {
                 try {
                     const data = JSON.parse(event.data);
+                    formatForConsole(data); // Log to console
                     updateUI(data);
                     
                     if (data.status === 'start' || data.status === 'playing') {
