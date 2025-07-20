@@ -321,7 +321,8 @@
             ws.onopen = () => {
                 statusEl.textContent = `Connected to ${host}`;
                 statusEl.className = 'connected';
-                serverMessageEl.textContent = 'Waiting for first update...';
+                //serverMessageEl.textContent = 'Waiting for first update...';
+                serverMessageEl.textContent = '';
                 reconnectAttempts = 0;
             
             };
