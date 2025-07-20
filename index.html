@@ -780,17 +780,16 @@
                     //startGradualResync(newServerTime);
                     //lastServerTime = newServerTime;
                     //displayedServerTime = 
-                    console.log('TIME SYNC - NORMAL --- displayed Server time:', displayedServerTime);
-                    console.log('TIME SYNC - NORMAL --- new       Server time:', newServerTime);
                     
                     displayedServerTime.setMilliseconds(0);
                     lastSyncTime = Date.now();
-                    console.log('TIME SYNC --- Holding displayed time:', displayedServerTime);
+                    console.log('TIME SYNC - HOLDING --- Holding displayed time:', displayedServerTime);
+                    console.log('TIME SYNC - HOLDING --- difference            :', displayedServerTime - newServerTime);
+                
                 } else {
                     // Normal update
-                    console.log('TIME SYNC - NORMAL --- displayed Server time:', displayedServerTime);
-                    console.log('TIME SYNC - NORMAL --- new       Server time:', newServerTime);
-                    console.log('TIME SYNC - NORMAL --- difference           :', displayedServerTime - newServerTime);
+                    console.log('TIME SYNC - NORMAL  --- displayed Server time :', displayedServerTime);
+                    console.log('TIME SYNC - NORMAL  --- difference            :', displayedServerTime - newServerTime);
                     displayedServerTime = newServerTime;
                     lastServerTime = newServerTime;
                     lastSyncTime = Date.now();
