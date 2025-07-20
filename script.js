@@ -8,7 +8,6 @@
         const eventsCountEl = document.getElementById('events-count');
         const eventsTagEl = document.getElementById('events-tag');
         //const lastSyncEl = document.getElementById('last-sync');
-        const syncStatusEl = document.getElementById('sync-status');
         
         // State variables
         let reconnectAttempts = 0;
@@ -181,8 +180,6 @@
             trackInfoEl.textContent = 'No track playing';
             trackTimerEl.textContent = '--:--';
             serverMessageEl.textContent = 'Waiting for connection...';
-            syncStatusEl.textContent = 'Connecting...';
-            syncStatusEl.className = 'sync-warning';
             
             // Clear any existing interval
             if (countdownInterval) {
@@ -326,8 +323,7 @@
                 statusEl.className = 'connected';
                 serverMessageEl.textContent = 'Waiting for first update...';
                 reconnectAttempts = 0;
-                syncStatusEl.textContent = 'Syncing time...';
-                syncStatusEl.className = 'sync-warning';
+            
             };
 
             ws.onmessage = (event) => {
@@ -356,9 +352,7 @@
             ws.onclose = (event) => {
                 statusEl.textContent = `Disconnected from ${host}`;
                 statusEl.className = 'disconnected';
-                syncStatusEl.textContent = 'Disconnected';
-                syncStatusEl.className = 'sync-bad';
-
+                
                 if (reconnectAttempts < maxReconnectAttempts) {
                     reconnectAttempts++;
                     serverMessageEl.textContent = `Reconnecting in ${reconnectDelay/1000} seconds (attempt ${reconnectAttempts}/${maxReconnectAttempts})...`;
@@ -377,8 +371,7 @@
             ws.onerror = (error) => {
                 statusEl.textContent = `Error connecting to ${host}`;
                 statusEl.className = 'disconnected';
-                syncStatusEl.textContent = 'Connection error';
-                syncStatusEl.className = 'sync-bad';
+                
             };
         }
 
