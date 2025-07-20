@@ -13,10 +13,11 @@
         }
         
         body {
-            background: white;
-            color: black;
+            background: #f5f7fa;
+            color: #333;
             min-height: 100vh;
             padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e7ec 100%);
         }
         
         .container {
@@ -24,25 +25,45 @@
             margin: 0 auto;
             border-radius: 15px;
             overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            background: white;
         }
         
         header {
             padding: 25px;
             text-align: center;
-            border-bottom: 2px solid #4CAF50;
+            background: linear-gradient(120deg, #4CAF50 0%, #2E7D32 100%);
+            color: white;
         }
         
         h1 {
             font-size: 2.8rem;
             margin-bottom: 10px;
-            color: #4CAF50;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         
         .subtitle {
             font-size: 1.2rem;
-            opacity: 0.8;
+            opacity: 0.9;
             max-width: 800px;
             margin: 0 auto;
+            color: rgba(255,255,255,0.9);
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            background-color: #4CAF50;
+            box-shadow: 0 0 8px #4CAF50;
+        }
+        
+        .status-indicator.offline {
+            background-color: #f44336;
+            box-shadow: 0 0 8px #f44336;
         }
         
         .controls {
@@ -51,7 +72,8 @@
             flex-wrap: wrap;
             gap: 15px;
             padding: 20px;
-            border-bottom: 1px solid #444;
+            background: #f8f9fa;
+            border-bottom: 1px solid #eaeaea;
         }
         
         .main-content {
@@ -77,14 +99,22 @@
         .panel {
             border-radius: 10px;
             padding: 25px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            background: white;
+            border: 1px solid #eaeaea;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
         }
         
         .panel-header {
             color: #2196F3;
             margin-bottom: 20px;
             padding-bottom: 10px;
-            border-bottom: 1px solid #444;
+            border-bottom: 1px solid #eee;
             display: flex;
             align-items: center;
         }
@@ -92,6 +122,7 @@
         .panel-header i {
             margin-right: 10px;
             font-size: 1.5rem;
+            color: #4CAF50;
         }
         
         .status-box {
@@ -106,6 +137,8 @@
             margin: 0 10px;
             border-radius: 8px;
             text-align: center;
+            background: #f8f9fa;
+            border: 1px solid #eaeaea;
         }
         
         .status-value {
@@ -116,11 +149,12 @@
         }
         
         #connection-status {
-            padding: 10px 15px;
-            border-radius: 5px;
+            padding: 12px 15px;
+            border-radius: 8px;
             font-weight: bold;
             text-align: center;
             margin: 20px 0;
+            font-size: 1.1rem;
         }
         
         .connected { 
@@ -145,7 +179,9 @@
             margin: 20px 0;
             border-radius: 10px;
             letter-spacing: 3px;
-            border: 2px solid #4CAF50;
+            background: linear-gradient(to right, #f8f9fa, #eef2f7);
+            border: 2px solid #e0e7ff;
+            color: #4CAF50;
             font-weight: bold;
         }
         
@@ -155,26 +191,36 @@
             min-height: 1.5em;
             margin-bottom: 20px;
             text-align: center;
+            padding: 15px;
+            background: #f0f7ff;
+            border: 1px solid #d1e7ff;
         }
         
         #time-display {
-            font-size: 3.5rem;
+            font-size: 2.2rem;
             text-align: center;
             padding: 20px;
             margin: 20px 0;
             border-radius: 10px;
-            letter-spacing: 3px;
-            border: 2px solid #4CAF50;
+            letter-spacing: 1px;
+            background: linear-gradient(to right, #f8f9fa, #eef2f7);
+            border: 2px solid #e0e7ff;
+            color: #2196F3;
             font-weight: bold;
         }
 
-          #messages-display {
+        #messages-display {
             text-align: center;
             padding: 20px;
             margin: 20px 0;
             border-radius: 10px;
-            border: 2px solid #4CAF50;
-           
+            background: #f0f7ff;
+            border: 1px solid #d1e7ff;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
         }
         
         .info-group {
@@ -182,17 +228,20 @@
         }
         
         .info-label {
-            color: #FFC107;
+            color: #666;
             font-weight: bold;
             margin-bottom: 5px;
+            text-align: center;
+            font-size: 1rem;
         }
         
         footer {
             text-align: center;
             padding: 25px;
-            border-top: 1px solid #444;
+            border-top: 1px solid #eaeaea;
             font-size: 0.9rem;
-            opacity: 0.7;
+            color: #666;
+            background: #f8f9fa;
         }
         
         /* Events Table Styles */
@@ -201,6 +250,8 @@
             margin-top: 15px;
             max-height: 400px;
             overflow-y: auto;
+            border: 1px solid #eaeaea;
+            border-radius: 8px;
         }
         
         .events-table {
@@ -220,11 +271,11 @@
         
         .events-table td {
             padding: 10px 15px;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid #eee;
         }
         
         .events-table tr:nth-child(even) {
-            background-color: #f2f2f2;
+            background-color: #f8f9fa;
         }
         
         .events-table tr:hover {
@@ -267,26 +318,58 @@
             font-style: italic;
         }
         
-        .event-status {
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: bold;
+        .time-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
         }
         
-        .event-enabled {
-            background-color: #e8f5e9;
-            color: #2E7D32;
+        .time-box {
+            flex: 1;
+            min-width: 250px;
         }
         
-        .event-disabled {
-            background-color: #ffebee;
-            color: #c62828;
+        .sync-status {
+            font-size: 0.9rem;
+            text-align: center;
+            color: #666;
+            margin-top: 10px;
         }
         
-        .event-expired {
-            background-color: #fff8e1;
-            color: #FF8F00;
+        .sync-good {
+            color: #4CAF50;
+        }
+        
+        .sync-warning {
+            color: #FF9800;
+        }
+        
+        .sync-bad {
+            color: #f44336;
+        }
+        
+        .instance-selector {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .instance-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: white;
+            border: 1px solid #4CAF50;
+            color: #4CAF50;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .instance-btn:hover, .instance-btn.active {
+            background: #4CAF50;
+            color: white;
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -294,7 +377,13 @@
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-cloud"></i>   ZaraCloud Monitor</h1>
+            <h1><i class="fas fa-cloud"></i> ZaraCloud Monitor</h1>
+            <div class="subtitle">Real-time monitoring of radio automation systems</div>
+            <div class="instance-selector">
+                <button class="instance-btn active" data-instance="radioscorpio.be">RadioScorpio</button>
+                <button class="instance-btn" data-instance="kaboutersoft.be">KabouterSoft</button>
+                <button class="instance-btn" data-instance="custom">Custom</button>
+            </div>
         </header>
         
         <div class="main-content">
@@ -316,30 +405,32 @@
             </div>
             
             <div class="panel">
-                <div class="panel-header">
-                    <i class="fas fa-clock"></i>
-                    <h2>Server Time</h2>
-                </div>
-                 <div id="time-display">
-                    <div class="info-group">
-                        <div id="server-time">--/--/----, --:--:--</div>
+                <div class="time-container">
+                    <div class="time-box">
+                        <div class="panel-header">
+                            <i class="fas fa-clock"></i>
+                            <h2>Server Time</h2>
+                        </div>
+                        <div id="time-display">
+                            <div id="server-time">--/--/----, --:--:--</div>
+                        </div>
+                        <div class="sync-status" id="zzserver-sync">Last sync: <span id="last-sync">never</span></div>
                     </div>
-                </div>
-    
-
-                 <div class="panel-header">
-                    <i class="fas fa-clock"></i>
-                    <h2>Local Time</h2>
+                    
+                    <div class="time-box">
+                        <div class="panel-header">
+                            <i class="fas fa-clock"></i>
+                            <h2>Local Time</h2>
+                        </div>
+                        <div id="time-display">
+                            <div id="local-time">--/--/----, --:--:--</div>
+                        </div>
+                        
+                    </div>
                 </div>
                 
-                <div id="time-display">
-                    <div class="info-group">
-                        <div id="local-time">--/--/----, --:--:--</div>
-                    </div>
-                </div>
-
-                 <div class="panel-header">
-                     <i class="fas fa-server"></i>
+                <div class="panel-header">
+                    <i class="fas fa-server"></i>
                     <h2>Server Message</h2>
                 </div>
                 
@@ -348,11 +439,8 @@
                         <div id="server-message">Waiting for connection...</div>
                     </div>
                 </div>
-
-               
             </div>
             
-            <!-- New Events Panel -->
             <div class="panel events-panel">
                 <div class="panel-header">
                     <i class="fas fa-calendar-alt"></i>
@@ -383,14 +471,13 @@
         </div>
         
         <footer>
-            <p>ZaraCloud Monitoring System</p>
+            <p>ZaraCloud Monitoring System | Time sync status: <span class="sync-good" id="sync-status">Active</span></p>
         </footer>
     </div>
 
     <script>
         // DOM elements
         const statusEl = document.getElementById('connection-status');
-        const timeEl = document.getElementById('time-display');
         const trackTimerEl = document.getElementById('track-timer');
         const trackInfoEl = document.getElementById('track-info');
         const serverMessageEl = document.getElementById('server-message');
@@ -399,15 +486,23 @@
         const eventsTableBody = document.getElementById('events-table-body');
         const eventsCountEl = document.getElementById('events-count');
         const eventsTagEl = document.getElementById('events-tag');
+        //const lastSyncEl = document.getElementById('last-sync');
+        const syncStatusEl = document.getElementById('sync-status');
         
         // State variables
         let reconnectAttempts = 0;
         const maxReconnectAttempts = 10;
-        const reconnectDelay = 3000; // 3 seconds
+        const reconnectDelay = 3000;
         let countdownInterval = null;
         let currentCountdownEndTime = 0;
         let ws = null;
         let currentHost = '';
+        let lastServerTime = null;
+        let lastSyncTime = null;
+        let syncDrift = 0;
+        let serverTimeInterval = null;
+        let localTimeInterval = null;
+        let timeSinceLastSync = 0;
         
         // Default hosts
         const instances = {
@@ -415,7 +510,34 @@
             'kaboutersoft.be': 'zaracloud.kaboutersoft.be'
         };
 
-        // Initialize with URL parameters
+        // Initialize when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            initFromURL();
+            initTimeSync();
+            setupInstanceButtons();
+        });
+
+        // Setup instance selector buttons
+        function setupInstanceButtons() {
+            const buttons = document.querySelectorAll('.instance-btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    buttons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    if (btn.dataset.instance === 'custom') {
+                        const host = prompt('Enter custom host:', 'yourhost.example.com');
+                        if (host) {
+                            connectToInstance('custom', host);
+                        }
+                    } else {
+                        connectToInstance(btn.dataset.instance, instances[btn.dataset.instance]);
+                    }
+                });
+            });
+        }
+
+        // Initialize from URL parameters
         function initFromURL() {
             const urlParams = new URLSearchParams(window.location.search);
             const instanceParam = urlParams.get('instance');
@@ -426,7 +548,6 @@
             } else if (instanceParam && instances[instanceParam]) {
                 connectToInstance(instanceParam, instances[instanceParam]);
             } else {
-                // Default connection
                 connectToInstance('radioscorpio.be', instances['radioscorpio.be']);
             }
         }
@@ -448,6 +569,8 @@
             trackInfoEl.textContent = 'No track playing';
             trackTimerEl.textContent = '--:--';
             serverMessageEl.textContent = 'Waiting for connection...';
+            syncStatusEl.textContent = 'Connecting...';
+            syncStatusEl.className = 'sync-warning';
             
             // Clear any existing interval
             if (countdownInterval) {
@@ -462,6 +585,17 @@
             
             // Connect to WebSocket
             connectWebSocket(host);
+        }
+
+        // Initialize time synchronization
+        function initTimeSync() {
+            // Start independent time updates
+            updateLocalTime();
+            localTimeInterval = setInterval(updateLocalTime, 1000);
+            
+            // Start server time updates (will be corrected when we receive server time)
+            updateServerTime();
+            serverTimeInterval = setInterval(updateServerTime, 1000);
         }
 
         // Format seconds to MM:SS
@@ -482,7 +616,49 @@
             const minutes = date.getMinutes().toString().padStart(2, '0');
             const seconds = date.getSeconds().toString().padStart(2, '0');
             
-            return `${day}/${month}/${year}   ${hours}:${minutes}:${seconds}`;
+            return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+        }
+
+        // Update local time independently
+        function updateLocalTime() {
+            const now = new Date();
+            localTimeEl.textContent = formatISOTime(now.toISOString());
+        }
+
+        // Update server time independently
+        function updateServerTime() {
+            if (!lastServerTime) return;
+            
+            // Calculate time since last sync
+            timeSinceLastSync = Date.now() - lastSyncTime;
+            
+            // Calculate new server time
+            const newServerTime = new Date(lastServerTime.getTime() + timeSinceLastSync + syncDrift);
+            
+            // Update display
+            serverTimeEl.textContent = formatISOTime(newServerTime.toISOString());
+            
+            // Update sync status
+            updateSyncStatus();
+        }
+
+        // Update synchronization status display
+        function updateSyncStatus() {
+            const secondsSinceSync = Math.floor(timeSinceLastSync / 1000);
+            
+            if (secondsSinceSync < 5) {
+                syncStatusEl.textContent = 'Perfect sync';
+                syncStatusEl.className = 'sync-good';
+            } else if (secondsSinceSync < 30) {
+                syncStatusEl.textContent = `Good sync (${secondsSinceSync}s)`;
+                syncStatusEl.className = 'sync-good';
+            } else if (secondsSinceSync < 60) {
+                syncStatusEl.textContent = `Slightly out of sync (${secondsSinceSync}s)`;
+                syncStatusEl.className = 'sync-warning';
+            } else {
+                syncStatusEl.textContent = `Out of sync (${secondsSinceSync}s)`;
+                syncStatusEl.className = 'sync-bad';
+            }
         }
 
         // Calculate and update the remaining time
@@ -560,21 +736,10 @@
                     const row = document.createElement('tr');
                     
                     // Format event time
-                    const eventTime = new Date(event.timestamp_iso);
                     const formattedTime = event.timestamp_iso.replace('T', ' - ');
-                    //const timeString = eventTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                    
-                    // Determine event status
-                    let statusText = 'Unknown';
-                    let statusClass = '';
-                    
-                   
                     
                     // Shorten file path for display
-                    const filePath = eventData.fichero || '';
-                    //const formattedPath = filePath.replace('\\\\\\\\', '\\');
                     const formattedPath = eventData.fichero ? eventData.fichero.replace(/\\\\/g, '\\') : '';
-                    const timeDisplay = eventData.startdate || '';
                     
                     row.innerHTML = `
                         <td class="event-time">${formattedTime}</td>
@@ -597,6 +762,8 @@
                 statusEl.className = 'connected';
                 serverMessageEl.textContent = 'Waiting for first update...';
                 reconnectAttempts = 0;
+                syncStatusEl.textContent = 'Syncing time...';
+                syncStatusEl.className = 'sync-warning';
             };
 
             ws.onmessage = (event) => {
@@ -613,6 +780,10 @@
                     if (data.status === "event_status") {
                         updateEvents(data);
                     }
+                    
+                    // Update sync status
+                    lastSyncTime = Date.now();
+                    //lastSyncEl.textContent = formatISOTime(new Date().toISOString());
                 } catch (e) {
                     console.error('Error parsing WebSocket message:', e);
                 }
@@ -621,6 +792,8 @@
             ws.onclose = (event) => {
                 statusEl.textContent = `Disconnected from ${host}`;
                 statusEl.className = 'disconnected';
+                syncStatusEl.textContent = 'Disconnected';
+                syncStatusEl.className = 'sync-bad';
 
                 if (reconnectAttempts < maxReconnectAttempts) {
                     reconnectAttempts++;
@@ -640,40 +813,36 @@
             ws.onerror = (error) => {
                 statusEl.textContent = `Error connecting to ${host}`;
                 statusEl.className = 'disconnected';
+                syncStatusEl.textContent = 'Connection error';
+                syncStatusEl.className = 'sync-bad';
             };
         }
 
         // Update UI with new data
         function updateUI(data) {
-            const date = new Date(data.utc * 1000);
+            // Update server time with real data
+            if (data.iso) {
+                const newServerTime = new Date(data.iso);
+                
+                // Calculate drift for better time keeping
+                if (lastServerTime) {
+                    const expectedTime = new Date(lastServerTime.getTime() + (Date.now() - lastSyncTime));
+                    syncDrift = newServerTime - expectedTime;
+                }
+                
+                lastServerTime = new Date(data.iso);
+                lastSyncTime = Date.now();
+                serverTimeEl.textContent = formatISOTime(data.iso);
+                lastSyncEl.textContent = formatISOTime(new Date().toISOString());
+                syncStatusEl.textContent = 'Perfect sync';
+                syncStatusEl.className = 'sync-good';
+            }
             
             // Update server message
             if (data.messages) {
-                //serverMessageEl.textContent = data.messages;
+                serverMessageEl.textContent = data.messages;
             }
-            
-            // Update server time
-            if (data.iso) {
-                serverTimeEl.textContent = formatISOTime(data.iso);
-            }
-            
-            // Update local time
-            localTimeEl.textContent = date.toLocaleString('en-GB', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
-            });
         }
-
-        // Initialize when page loads
-        window.addEventListener('DOMContentLoaded', () => {
-            // Initialize from URL parameters
-            initFromURL();
-        });
     </script>
 </body>
 </html>
