@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZaraCloud Monitor</title>
+    <title>ZaraCloud Monitor - Events</title>
     <style>
         * {
             margin: 0;
@@ -24,7 +24,6 @@
             margin: 0 auto;
             border-radius: 15px;
             overflow: hidden;
-            
         }
         
         header {
@@ -37,7 +36,6 @@
             font-size: 2.8rem;
             margin-bottom: 10px;
             color: #4CAF50;
-           
         }
         
         .subtitle {
@@ -56,8 +54,6 @@
             border-bottom: 1px solid #444;
         }
         
-      
-        
         .main-content {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -65,9 +61,16 @@
             padding: 25px;
         }
         
+        .events-panel {
+            grid-column: 1 / span 2;
+        }
+        
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
+            }
+            .events-panel {
+                grid-column: 1;
             }
         }
         
@@ -148,10 +151,8 @@
         
         #track-info {
             font-size: 1.3rem;
-            
             border-radius: 8px;
             min-height: 1.5em;
-            
             margin-bottom: 20px;
             text-align: center;
         }
@@ -161,7 +162,6 @@
             line-height: 1.6;
             padding: 20px;
             border-radius: 8px;
-            
         }
         
         .info-group {
@@ -182,32 +182,98 @@
             opacity: 0.7;
         }
         
-        .instructions {
-            margin-top: 25px;
-            padding: 20px;
-            border-radius: 10px;
+        /* Events Table Styles */
+        .events-table-container {
+            overflow-x: auto;
+            margin-top: 15px;
+            max-height: 400px;
+            overflow-y: auto;
         }
         
-        .instructions h3 {
-            color: #FFC107;
-            margin-bottom: 15px;
+        .events-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
         }
         
-        .instructions ul {
-            padding-left: 25px;
-            margin-bottom: 15px;
+        .events-table th {
+            background-color: #2196F3;
+            color: white;
+            text-align: left;
+            padding: 12px 15px;
+            position: sticky;
+            top: 0;
         }
         
-        .instructions li {
-            margin-bottom: 8px;
+        .events-table td {
+            padding: 10px 15px;
+            border-bottom: 1px solid #ddd;
         }
         
-        .url-example {
-            padding: 10px;
-            border-radius: 5px;
+        .events-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        
+        .events-table tr:hover {
+            background-color: #e6f7ff;
+        }
+        
+        .event-name {
+            font-weight: bold;
+            color: #2196F3;
+        }
+        
+        .event-time {
+            white-space: nowrap;
+        }
+        
+        .event-file {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .event-id {
+            text-align: center;
             font-family: monospace;
-            margin: 10px 0;
-            word-break: break-all;
+        }
+        
+        .events-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .no-events {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .event-status {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .event-enabled {
+            background-color: #e8f5e9;
+            color: #2E7D32;
+        }
+        
+        .event-disabled {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        
+        .event-expired {
+            background-color: #fff8e1;
+            color: #FF8F00;
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -218,16 +284,12 @@
             <h1><i class="fas fa-cloud"></i>   ZaraCloud Monitor</h1>
         </header>
         
-      
-        
         <div class="main-content">
             <div class="panel">
                 <div class="panel-header">
                     <i class="fas fa-broadcast-tower"></i>
                     <h2>Connection Status</h2>
                 </div>
-                
-             
                 
                 <div id="connection-status" class="connecting">Connecting to zaracloud.radioscorpio.be...</div>
                 
@@ -259,15 +321,44 @@
                         <div class="info-label">Local Time:</div>
                         <div id="local-time">--/--/----, --:--:--</div>
                     </div>
-                   
+                </div>
+            </div>
+            
+            <!-- New Events Panel -->
+            <div class="panel events-panel">
+                <div class="panel-header">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h2>Upcoming Events</h2>
                 </div>
                 
-               
+                <div class="events-meta">
+                    <div id="events-count">Showing 0 events</div>
+                    <div id="events-tag"></div>
+                </div>
+                
+                <div class="events-table-container">
+                    <table class="events-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Event</th>
+                                <th>File</th>
+                                <th>Status</th>
+                                <th>ID</th>
+                            </tr>
+                        </thead>
+                        <tbody id="events-table-body">
+                            <tr>
+                                <td colspan="5" class="no-events">Waiting for event data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
         
         <footer>
-            <p>ZaraCloud Monitoring System </p>
+            <p>ZaraCloud Monitoring System</p>
         </footer>
     </div>
 
@@ -280,6 +371,9 @@
         const serverMessageEl = document.getElementById('server-message');
         const serverTimeEl = document.getElementById('server-time');
         const localTimeEl = document.getElementById('local-time');
+        const eventsTableBody = document.getElementById('events-table-body');
+        const eventsCountEl = document.getElementById('events-count');
+        const eventsTagEl = document.getElementById('events-tag');
         
         // State variables
         let reconnectAttempts = 0;
@@ -304,14 +398,11 @@
             
             if (instanceParam === 'custom' && customHost) {
                 connectToInstance('custom', customHost);
-               
             } else if (instanceParam && instances[instanceParam]) {
                 connectToInstance(instanceParam, instances[instanceParam]);
-              
             } else {
                 // Default connection
                 connectToInstance('radioscorpio.be', instances['radioscorpio.be']);
-               
             }
         }
 
@@ -338,6 +429,11 @@
                 clearInterval(countdownInterval);
                 countdownInterval = null;
             }
+            
+            // Clear events table
+            eventsTableBody.innerHTML = '<tr><td colspan="5" class="no-events">Waiting for event data...</td></tr>';
+            eventsCountEl.textContent = 'Showing 0 events';
+            eventsTagEl.textContent = '';
             
             // Connect to WebSocket
             connectWebSocket(host);
@@ -403,7 +499,6 @@
             countdownInterval = setInterval(updateTimerDisplay, 100);
         }
 
-
         // Format JSON for nice console output
         function formatForConsole(data) {
             console.groupCollapsed('WebSocket Message Received');
@@ -417,6 +512,66 @@
                 JSON.stringify(data, null, 2));
         }
 
+        // Update events table with new data
+        function updateEvents(data) {
+            if (data.status === "event_status" && data.events) {
+                const events = data.events;
+                
+                // Update metadata
+                eventsCountEl.textContent = `Showing ${events.length} of ${data.event_meta.size} events`;
+                eventsTagEl.textContent = data.event_meta.tag;
+                
+                // Clear existing rows
+                eventsTableBody.innerHTML = '';
+                
+                if (events.length === 0) {
+                    eventsTableBody.innerHTML = '<tr><td colspan="5" class="no-events">No upcoming events</td></tr>';
+                    return;
+                }
+                
+                // Add each event to the table
+                events.forEach(event => {
+                    const eventData = event.event;
+                    const row = document.createElement('tr');
+                    
+                    // Format event time
+                    const eventTime = new Date(event.timestamp_iso);
+                    const timeString = eventTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    
+                    // Determine event status
+                    let statusText = 'Unknown';
+                    let statusClass = '';
+                    
+                    if (eventData.enabled === 0) {
+                        statusText = 'Disabled';
+                        statusClass = 'event-disabled';
+                    } else if (new Date(eventData.expirationdate) < new Date()) {
+                        statusText = 'Expired';
+                        statusClass = 'event-expired';
+                    } else {
+                        statusText = 'Enabled';
+                        statusClass = 'event-enabled';
+                    }
+                    
+                    // Shorten file path for display
+                    const filePath = eventData.fichero || '';
+                    const shortenedPath = filePath.length > 30 ? 
+                        '...' + filePath.substring(filePath.length - 30) : 
+                        filePath;
+                    
+                    row.innerHTML = `
+                        <td class="event-time">${timeString}</td>
+                        <td class="event-name">${eventData.name || 'Unnamed'}</td>
+                        <td class="event-file" title="${filePath}">${shortenedPath}</td>
+                        <td><span class="event-status ${statusClass}">${statusText}</span></td>
+                        <td class="event-id">${event.unique_id}</td>
+                    `;
+                    
+                    eventsTableBody.appendChild(row);
+                });
+            }
+        }
+
         // WebSocket connection management
         function connectWebSocket(host) {
             const wsUrl = `wss://${host}/ws`;
@@ -428,7 +583,6 @@
                 statusEl.className = 'connected';
                 serverMessageEl.textContent = 'Waiting for first update...';
                 reconnectAttempts = 0;
-               
             };
 
             ws.onmessage = (event) => {
@@ -439,6 +593,11 @@
                     
                     if (data.status === 'start' || data.status === 'playing') {
                         updateCountdown(data);
+                    }
+                    
+                    // Update events if event_status is received
+                    if (data.status === "event_status") {
+                        updateEvents(data);
                     }
                 } catch (e) {
                     console.error('Error parsing WebSocket message:', e);
@@ -494,16 +653,10 @@
                 second: '2-digit',
                 hour12: false
             });
-            
-         
         }
-
-       
 
         // Initialize when page loads
         window.addEventListener('DOMContentLoaded', () => {
-            
-            
             // Initialize from URL parameters
             initFromURL();
         });
