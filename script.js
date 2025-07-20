@@ -1,4 +1,4 @@
- const statusEl = document.getElementById('connection-status');
+        const statusEl = document.getElementById('connection-status');
         const trackTimerEl = document.getElementById('track-timer');
         const trackInfoEl = document.getElementById('track-info');
         const serverMessageEl = document.getElementById('server-message');
@@ -36,22 +36,116 @@
         // Initialize when page loads
         window.addEventListener('DOMContentLoaded', () => {
             initFromURL();
-            initTimeSync();           
+                
         });
+
+        
             
         
 
 
+        class TimeSynchronizer {
+            constructor(updateCallback) {
+                this.serverBase = null;      // Last valid server timestamp
+                this.localBase = null;       // Local time when last valid message was processed
+                this.avgLatency = null;      // Moving average of network latency
+                this.lastValidTime = null;   // Local time of last valid message
+                this.updateCallback = updateCallback; // Callback to update displayed time
+                this.timer = null;
+                
+                // Configuration
+                this.THRESHOLD = 500;       // Max allowed latency deviation (ms)
+                this.ALPHA = 0.2;           // Smoothing factor for latency average
+                this.ACCEPT_TIMEOUT = 3000; // Force sync after this inactivity (ms)
+                this.UPDATE_INTERVAL = 1000; // UI update interval (ms)
+            }
 
+            // Handle incoming server time updates
+            handleServerTime(stamp) {
+                const now = Date.now();
+                console.log("Handling server time:", stamp, "at local time:", now);
 
-         // Initialize time synchronization
-        function initTimeSync() {
-            // Start independent time updates
-            
-            // Start server time updates (will be corrected when we receive server time)
-            updateServerTime();
-            serverTimeInterval = setInterval(updateServerTime, 1000);
+                // Initialize on first message
+                if (this.serverBase === null) {
+                    this.initializeTime(stamp, now);
+                    return;
+                }
+
+                // Calculate current message latency
+                const currentLatency = now - stamp;
+                const latencyDiff = Math.abs(currentLatency - (this.avgLatency ?? currentLatency));
+
+                console.log(`Current latency: ${currentLatency}ms, Avg latency: ${this.avgLatency}ms, Latency diff: ${latencyDiff}ms`);
+
+                // Check if we need to force acceptance
+                const timeSinceValid = now - this.lastValidTime;
+                if (timeSinceValid > this.ACCEPT_TIMEOUT) {
+                    this.initializeTime(stamp, now);
+                    console.log("Forced synchronization due to timeout");
+                    return;
+                }
+
+                // Accept message if within latency threshold
+                if (latencyDiff <= this.THRESHOLD) {
+                    this.updateTime(stamp, now, currentLatency);
+                } else {
+                    console.log(`Ignoring delayed message. Latency diff: ${latencyDiff}ms`);
+                }
+            }
+
+            // Initialize time bases
+            initializeTime(stamp, now) {
+                this.serverBase = stamp;
+                this.localBase = now;
+                this.avgLatency = now - stamp;
+                this.lastValidTime = now;
+                this.startTimer();
+            }
+
+            // Update time with new valid message
+            updateTime(stamp, now, currentLatency) {
+                // Update latency average (moving average)
+                this.avgLatency = this.ALPHA * currentLatency + 
+                                (1 - this.ALPHA) * (this.avgLatency ?? currentLatency);
+                
+                this.serverBase = stamp;
+                this.localBase = now;
+                this.lastValidTime = now;
+            }
+
+            // Start the local timer
+            startTimer() {
+                if (this.timer) clearInterval(this.timer);
+                
+                this.timer = setInterval(() => {
+                    if (this.serverBase === null) return;
+                    
+                    const elapsed = Date.now() - this.localBase;
+                    const currentServerTime = this.serverBase + elapsed;
+                    
+                    // Update display via callback
+                    this.updateCallback(currentServerTime);
+                }, this.UPDATE_INTERVAL);
+            }
+
+            // Clean up
+            stop() {
+                clearInterval(this.timer);
+            }
         }
+
+
+
+        // Display function
+        function displayTime(timestamp) {
+            const date = new Date(timestamp);
+            serverTimeEl.textContent = date.toLocaleString().replace(',',' - '); // HH:MM:SS
+        }
+
+
+        const timeSync = new TimeSynchronizer(displayTime);
+
+    
 
 
 
@@ -170,11 +264,11 @@
 
         // Format JSON for nice console output
         function formatForConsole(data) {
-            console.groupCollapsed('WebSocket Message Received');
-            console.log('Timestamp:', new Date().toISOString());
-            console.log('Status:', data.status || 'Unknown');
-            console.log('Full Data:', data);
-            console.groupEnd();
+            //console.groupCollapsed('WebSocket Message Received');
+            //console.log('Timestamp:', new Date().toISOString());
+            //console.log('Status:', data.status || 'Unknown');
+            //console.log('Full Data:', data);
+            //console.groupEnd();
             
             // Alternative formatted output
             console.log('%cWebSocket Data:', 'color: #4CAF50; font-weight: bold', 
@@ -224,6 +318,8 @@
             const wsUrl = `wss://${host}/ws`;
             
             ws = new WebSocket(wsUrl);
+
+    
 
             ws.onopen = () => {
                 statusEl.textContent = `Connected to ${host}`;
@@ -288,59 +384,18 @@
 
 
 
-        function updateServerTime() {
-        
-            if (!displayedServerTime) return;
-
-            // Only move forward in time
-            displayedServerTime = new Date(displayedServerTime.getTime() + 1000);
-            serverTimeEl.textContent = formatISOTime(displayedServerTime.toISOString().toLocaleString());
-            //updateSyncStatus();
-        }
-
-          // Update UI with new data
-
+    
         function updateUI(data) {
-            // Update server time with real data
-            if (data.iso) {
-                //const newServerTime = new Date(data.iso);
-                const newServerTime = new Date(data.utc * 1000);
 
-                if (!displayedServerTime) {
-                    displayedServerTime = newServerTime;
-                    lastSyncTime = Date.now();
-                    //serverTimeEl.textContent = formatISOTime(newServerTime.toISOString()).toLocaleString();
-                    syncStatusEl.textContent = 'Perfect sync';
-                    syncStatusEl.className = 'sync-good';
-                    console.log('TIME SYNC --- Initial server time set:', displayedServerTime);
-                } else if ((displayedServerTime - newServerTime) > 500) {
-                    // If new time is behind, start gradual resync
-                    //startGradualResync(newServerTime);
-                    //displayedServerTime = 
-                    console.log('TIME SYNC - HOLDING --- Holding displayed time:', displayedServerTime);
-                    console.log('TIME SYNC - HOLDING --- difference            :', displayedServerTime - newServerTime);
-                
-                    displayedServerTime.setMilliseconds(0);
-                    lastSyncTime = Date.now();
-                
-                } else {
-                    // Normal update
-                    console.log('TIME SYNC - NORMAL  --- displayed Server time :', displayedServerTime);
-                    console.log('TIME SYNC - NORMAL  --- difference            :', displayedServerTime - newServerTime);
-                    displayedServerTime = newServerTime;
-                    lastSyncTime = Date.now();
-                
-                    //serverTimeEl.textContent = formatISOTime(newServerTime.toISOString()).toLocaleString();
-                    syncStatusEl.textContent = 'Perfect sync';
-                    syncStatusEl.className = 'sync-good';
-                    //console.log('TIME SYNC --- Synced time:', displayedServerTime);
-                }
-            }
-
-            // Update server message
+             // Update server message
             if (data.messages) {
                 serverMessageEl.textContent = data.messages;
             }
 
-            // Track info and events update remain unchanged
+            // Update server time with real data
+            if (data.iso) {
+                const serverTime = new Date(data.utc * 1000).getTime();
+                timeSync.handleServerTime(serverTime);
+                return;
+            }
         }
