@@ -833,7 +833,7 @@
                 lastServerTime = new Date(data.iso);
                 lastSyncTime = Date.now();
                 serverTimeEl.textContent = formatISOTime(data.iso);
-                lastSyncEl.textContent = formatISOTime(new Date().toISOString());
+                //lastSyncEl.textContent = formatISOTime(new Date().toISOString());
                 syncStatusEl.textContent = 'Perfect sync';
                 syncStatusEl.className = 'sync-good';
             }
