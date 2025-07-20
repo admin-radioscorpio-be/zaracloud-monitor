@@ -819,11 +819,15 @@
                     serverTimeEl.textContent = formatISOTime(newServerTime.toISOString());
                     syncStatusEl.textContent = 'Perfect sync';
                     syncStatusEl.className = 'sync-good';
+                    console.log('Initial server time set:', displayedServerTime);
                 } else if (newServerTime < displayedServerTime) {
                     // If new time is behind, start gradual resync
-                    startGradualResync(newServerTime);
-                    lastServerTime = newServerTime;
+                    //startGradualResync(newServerTime);
+                    //lastServerTime = newServerTime;
+                    //displayedServerTime = 
+                    displayedServerTime.setMilliseconds(0);
                     lastSyncTime = Date.now();
+                    console.log('Holding displayed time:', displayedServerTime);
                 } else {
                     // Normal update
                     displayedServerTime = newServerTime;
