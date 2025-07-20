@@ -543,10 +543,10 @@
                     
                     // Shorten file path for display
                     const filePath = eventData.fichero || '';
-                    
+                    const timeDisplay = eventData.startdate || '';
                     
                     row.innerHTML = `
-                        <td class="event-time">${eventTime}</td>
+                        <td class="event-time">${timeDisplay}</td>
                         <td class="event-file" title="${filePath}">${filePath}</td>
                     `;
                     
