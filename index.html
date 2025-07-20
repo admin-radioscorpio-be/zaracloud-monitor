@@ -533,6 +533,7 @@
                     
                     // Format event time
                     const eventTime = new Date(event.timestamp_iso);
+                    const formattedTime = event.timestamp_iso.replace('T', ' - ');
                     //const timeString = eventTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                     
                     // Determine event status
@@ -546,7 +547,7 @@
                     const timeDisplay = eventData.startdate || '';
                     
                     row.innerHTML = `
-                        <td class="event-time">${timeDisplay}</td>
+                        <td class="event-time">${formattedTime}</td>
                         <td class="event-file" title="${filePath}">${filePath}</td>
                     `;
                     
