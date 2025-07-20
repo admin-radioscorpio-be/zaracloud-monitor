@@ -397,19 +397,8 @@
                         <div id="time-display">
                             <div id="server-time">--/--/----, --:--:--</div>
                         </div>
-                        <div class="sync-status" id="zzserver-sync">Last sync: <span id="last-sync">never</span></div>
-                    </div>
+                     </div>
                     
-                    <div class="time-box">
-                        <div class="panel-header">
-                            <i class="fas fa-clock"></i>
-                            <h2>Local Time</h2>
-                        </div>
-                        <div id="time-display">
-                            <div id="local-time">--/--/----, --:--:--</div>
-                        </div>
-                        
-                    </div>
                 </div>
                 
                 <div class="panel-header">
@@ -465,7 +454,7 @@
         const trackInfoEl = document.getElementById('track-info');
         const serverMessageEl = document.getElementById('server-message');
         const serverTimeEl = document.getElementById('server-time');
-        const localTimeEl = document.getElementById('local-time');
+        //const localTimeEl = document.getElementById('local-time');
         const eventsTableBody = document.getElementById('events-table-body');
         const eventsCountEl = document.getElementById('events-count');
         const eventsTagEl = document.getElementById('events-tag');
@@ -587,7 +576,7 @@
         // Update local time independently
         function updateLocalTime() {
             const now = new Date();
-            localTimeEl.textContent = formatISOTime(now.toISOString());
+           // localTimeEl.textContent = formatISOTime(now.toISOString());
         }
 
         // Update server time independently
