@@ -174,7 +174,6 @@
             margin: 20px 0;
             border-radius: 10px;
             letter-spacing: 3px;
-            background: linear-gradient(to right, #f8f9fa, #eef2f7);
             border: 2px solid #e0e7ff;
             color: #000000;
             font-weight: bold;
@@ -187,7 +186,6 @@
             margin-bottom: 20px;
             text-align: center;
             padding: 15px;
-            background: #f0f7ff;
             border: 1px solid #d1e7ff;
         }
         
@@ -198,7 +196,6 @@
             margin: 20px 0;
             border-radius: 10px;
             letter-spacing: 1px;
-            background: linear-gradient(to right, #f8f9fa, #eef2f7);
             border: 2px solid #e0e7ff;
             color: #000000;
             font-weight: bold;
@@ -209,7 +206,6 @@
             padding: 20px;
             margin: 20px 0;
             border-radius: 10px;
-            background: #f0f7ff;
             border: 1px solid #d1e7ff;
             min-height: 120px;
             display: flex;
