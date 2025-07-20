@@ -563,7 +563,7 @@
                     
                     // Shorten file path for display
                     const filePath = eventData.fichero || '';
-                    const formattedPath = filePath.replace('\\\\', '\\');
+                    const formattedPath = filePath.replace('\\', '/');
                     const timeDisplay = eventData.startdate || '';
                     
                     row.innerHTML = `
