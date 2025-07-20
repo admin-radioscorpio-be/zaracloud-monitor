@@ -563,11 +563,12 @@
                     
                     // Shorten file path for display
                     const filePath = eventData.fichero || '';
+                    const formattedPath = filePath.replace('\\', '\');
                     const timeDisplay = eventData.startdate || '';
                     
                     row.innerHTML = `
                         <td class="event-time">${formattedTime}</td>
-                        <td class="event-file" title="${filePath}">${filePath}</td>
+                        <td class="event-file" title="${formattedPath}">${formattedPath}</td>
                     `;
                     
                     eventsTableBody.appendChild(row);
