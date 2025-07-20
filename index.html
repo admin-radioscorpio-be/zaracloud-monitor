@@ -341,10 +341,7 @@
                         <thead>
                             <tr>
                                 <th>Time</th>
-                                <th>Event</th>
                                 <th>File</th>
-                                <th>Status</th>
-                                <th>ID</th>
                             </tr>
                         </thead>
                         <tbody id="events-table-body">
@@ -536,35 +533,21 @@
                     
                     // Format event time
                     const eventTime = new Date(event.timestamp_iso);
-                    const timeString = eventTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    //const timeString = eventTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                     
                     // Determine event status
                     let statusText = 'Unknown';
                     let statusClass = '';
                     
-                    if (eventData.enabled === 0) {
-                        statusText = 'Disabled';
-                        statusClass = 'event-disabled';
-                    } else if (new Date(eventData.expirationdate) < new Date()) {
-                        statusText = 'Expired';
-                        statusClass = 'event-expired';
-                    } else {
-                        statusText = 'Enabled';
-                        statusClass = 'event-enabled';
-                    }
+                   
                     
                     // Shorten file path for display
                     const filePath = eventData.fichero || '';
-                    const shortenedPath = filePath.length > 30 ? 
-                        '...' + filePath.substring(filePath.length - 30) : 
-                        filePath;
+                    
                     
                     row.innerHTML = `
-                        <td class="event-time">${timeString}</td>
-                        <td class="event-name">${eventData.name || 'Unnamed'}</td>
-                        <td class="event-file" title="${filePath}">${shortenedPath}</td>
-                        <td><span class="event-status ${statusClass}">${statusText}</span></td>
-                        <td class="event-id">${event.unique_id}</td>
+                        <td class="event-time">${eventTime}</td>
+                        <td class="event-file" title="${filePath}">${filePath}</td>
                     `;
                     
                     eventsTableBody.appendChild(row);
