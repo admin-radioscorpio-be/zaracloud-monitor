@@ -357,20 +357,7 @@
             flex-wrap: wrap;
         }
         
-        .instance-btn {
-            padding: 8px 16px;
-            border-radius: 20px;
-            background: white;
-            border: 1px solid #4CAF50;
-            color: #4CAF50;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .instance-btn:hover, .instance-btn.active {
-            background: #4CAF50;
-            color: white;
-        }
+     
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -379,11 +366,7 @@
         <header>
             <h1><i class="fas fa-cloud"></i> ZaraCloud Monitor</h1>
             <div class="subtitle">Real-time monitoring of radio automation systems</div>
-            <div class="instance-selector">
-                <button class="instance-btn active" data-instance="radioscorpio.be">RadioScorpio</button>
-                <button class="instance-btn" data-instance="kaboutersoft.be">KabouterSoft</button>
-                <button class="instance-btn" data-instance="custom">Custom</button>
-            </div>
+            
         </header>
         
         <div class="main-content">
@@ -514,28 +497,10 @@
         window.addEventListener('DOMContentLoaded', () => {
             initFromURL();
             initTimeSync();
-            setupInstanceButtons();
+           
         });
 
-        // Setup instance selector buttons
-        function setupInstanceButtons() {
-            const buttons = document.querySelectorAll('.instance-btn');
-            buttons.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    buttons.forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    
-                    if (btn.dataset.instance === 'custom') {
-                        const host = prompt('Enter custom host:', 'yourhost.example.com');
-                        if (host) {
-                            connectToInstance('custom', host);
-                        }
-                    } else {
-                        connectToInstance(btn.dataset.instance, instances[btn.dataset.instance]);
-                    }
-                });
-            });
-        }
+     
 
         // Initialize from URL parameters
         function initFromURL() {
