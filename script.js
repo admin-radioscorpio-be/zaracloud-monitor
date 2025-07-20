@@ -295,7 +295,7 @@
             // Only move forward in time
             displayedServerTime = new Date(displayedServerTime.getTime() + 1000);
             serverTimeEl.textContent = formatISOTime(displayedServerTime.toISOString().toLocaleString());
-            updateSyncStatus();
+            //updateSyncStatus();
         }
 
           // Update UI with new data
