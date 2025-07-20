@@ -455,9 +455,11 @@
         const trackInfoEl = document.getElementById('track-info');
         const serverMessageEl = document.getElementById('server-message');
         const serverTimeEl = document.getElementById('server-time');
+        //const localTimeEl = document.getElementById('local-time');
         const eventsTableBody = document.getElementById('events-table-body');
         const eventsCountEl = document.getElementById('events-count');
         const eventsTagEl = document.getElementById('events-tag');
+        //const lastSyncEl = document.getElementById('last-sync');
         const syncStatusEl = document.getElementById('sync-status');
         
         // State variables
@@ -474,14 +476,7 @@
         let serverTimeInterval = null;
         let localTimeInterval = null;
         let timeSinceLastSync = 0;
-
-        // NEW: Track the displayed server time and resync state
-        let displayedServerTime = null;
-        let resyncInterval = null;
-        let resyncTargetTime = null;
-        const RESYNC_STEP_MS = 200; // ms to advance per tick
-        const RESYNC_TICK_MS = 50;  // tick interval
-
+        
         // Default hosts
         const instances = {
             'radioscorpio.be': 'zaracloud.radioscorpio.be',
@@ -587,79 +582,77 @@
 
         // Update server time independently
         function updateServerTime() {
-            // If resyncing, let the resyncInterval handle updates
-            if (resyncInterval) return;
-            if (!displayedServerTime) return;
-
-            // Only move forward in time
-            displayedServerTime = new Date(displayedServerTime.getTime() + 1000);
-            serverTimeEl.textContent = formatISOTime(displayedServerTime.toISOString());
+            if (!lastServerTime) return;
+            
+            // Calculate time since last sync
+            timeSinceLastSync = Date.now() - lastSyncTime;
+            
+            // Calculate new server time
+            const newServerTime = new Date(lastServerTime.getTime() + timeSinceLastSync + syncDrift);
+            
+            // Update display
+            serverTimeEl.textContent = formatISOTime(newServerTime.toISOString());
+            
+            // Update sync status
             updateSyncStatus();
         }
 
-        // Gradual resync function
-        function startGradualResync(targetTime) {
-            if (resyncInterval) clearInterval(resyncInterval);
-            resyncTargetTime = targetTime;
-
-            resyncInterval = setInterval(() => {
-                if (displayedServerTime < resyncTargetTime) {
-                    // Advance by RESYNC_STEP_MS, but do not overshoot
-                    let nextTime = new Date(displayedServerTime.getTime() + RESYNC_STEP_MS);
-                    if (nextTime > resyncTargetTime) nextTime = resyncTargetTime;
-                    displayedServerTime = nextTime;
-                    serverTimeEl.textContent = formatISOTime(displayedServerTime.toISOString());
-                    syncStatusEl.textContent = 'Resyncing...';
-                    syncStatusEl.className = 'sync-warning';
-                } else {
-                    // Done resyncing
-                    displayedServerTime = resyncTargetTime;
-                    serverTimeEl.textContent = formatISOTime(displayedServerTime.toISOString());
-                    syncStatusEl.textContent = 'Perfect sync';
-                    syncStatusEl.className = 'sync-good';
-                    clearInterval(resyncInterval);
-                    resyncInterval = null;
-                    resyncTargetTime = null;
-                }
-            }, RESYNC_TICK_MS);
+        // Update synchronization status display
+        function updateSyncStatus() {
+            const secondsSinceSync = Math.floor(timeSinceLastSync / 1000);
+            
+            if (secondsSinceSync < 5) {
+                syncStatusEl.textContent = 'Perfect sync';
+                syncStatusEl.className = 'sync-good';
+            } else if (secondsSinceSync < 30) {
+                syncStatusEl.textContent = `Good sync (${secondsSinceSync}s)`;
+                syncStatusEl.className = 'sync-good';
+            } else if (secondsSinceSync < 60) {
+                syncStatusEl.textContent = `Slightly out of sync (${secondsSinceSync}s)`;
+                syncStatusEl.className = 'sync-warning';
+            } else {
+                syncStatusEl.textContent = `Out of sync (${secondsSinceSync}s)`;
+                syncStatusEl.className = 'sync-bad';
+            }
         }
 
-        // Update UI with new data
-        function updateUI(data) {
-            // Update server time with real data
-            if (data.iso) {
-                const newServerTime = new Date(data.iso);
-
-                // If first time, set both displayed and lastServerTime
-                if (!displayedServerTime) {
-                    displayedServerTime = newServerTime;
-                    lastServerTime = newServerTime;
-                    lastSyncTime = Date.now();
-                    syncDrift = 0;
-                    serverTimeEl.textContent = formatISOTime(newServerTime.toISOString());
-                    syncStatusEl.textContent = 'Perfect sync';
-                    syncStatusEl.className = 'sync-good';
-                } else if (newServerTime < displayedServerTime) {
-                    // If new time is behind, start gradual resync
-                    startGradualResync(newServerTime);
-                    lastServerTime = newServerTime;
-                    lastSyncTime = Date.now();
-                } else {
-                    // Normal update
-                    displayedServerTime = newServerTime;
-                    lastServerTime = newServerTime;
-                    lastSyncTime = Date.now();
-                    syncDrift = 0;
-                    serverTimeEl.textContent = formatISOTime(newServerTime.toISOString());
-                    syncStatusEl.textContent = 'Perfect sync';
-                    syncStatusEl.className = 'sync-good';
+        // Calculate and update the remaining time
+        function updateTimerDisplay() {
+            const now = Date.now();
+            const remainingSeconds = (currentCountdownEndTime - now) / 1000;
+            
+            if (currentCountdownEndTime > 0) {
+                trackTimerEl.textContent = formatTime(remainingSeconds);
+                
+                if (remainingSeconds <= 0) {
+                    clearInterval(countdownInterval);
+                    countdownInterval = null;
+                    trackTimerEl.textContent = '00:00';
+                    trackInfoEl.textContent = 'Track finished';
                 }
             }
+        }
 
-            // Update server message
-            if (data.messages) {
-                serverMessageEl.textContent = data.messages;
+        // Start or update the countdown timer
+        function updateCountdown(data) {
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
             }
+            
+            const filename = data.track.split('/').pop() || 'Unknown Track';
+            trackInfoEl.textContent = `${filename}`;
+            
+            const now = Date.now();
+            
+            if (data.status === 'start') {
+                currentCountdownEndTime = now + (data.file_duration * 1000);
+            } else if (data.status === 'playing') {
+                currentCountdownEndTime = now + (data.remaining_time * 1000);
+            }
+            
+            updateTimerDisplay();
+            countdownInterval = setInterval(updateTimerDisplay, 100);
         }
 
         // Format JSON for nice console output
@@ -785,189 +778,21 @@
             // Update server time with real data
             if (data.iso) {
                 const newServerTime = new Date(data.iso);
-
-                // If first time, set both displayed and lastServerTime
-                if (!displayedServerTime) {
-                    displayedServerTime = newServerTime;
-                    lastServerTime = newServerTime;
-                    lastSyncTime = Date.now();
-                    syncDrift = 0;
-                    serverTimeEl.textContent = formatISOTime(newServerTime.toISOString());
-                    syncStatusEl.textContent = 'Perfect sync';
-                    syncStatusEl.className = 'sync-good';
-                } else if (newServerTime < displayedServerTime) {
-                    // If new time is behind, start gradual resync
-                    startGradualResync(newServerTime);
-                    lastServerTime = newServerTime;
-                    lastSyncTime = Date.now();
-                } else {
-                    // Normal update
-                    displayedServerTime = newServerTime;
-                    lastServerTime = newServerTime;
-                    lastSyncTime = Date.now();
-                    syncDrift = 0;
-                    serverTimeEl.textContent = formatISOTime(newServerTime.toISOString());
-                    syncStatusEl.textContent = 'Perfect sync';
-                    syncStatusEl.className = 'sync-good';
+                
+                // Calculate drift for better time keeping
+                if (lastServerTime) {
+                    const expectedTime = new Date(lastServerTime.getTime() + (Date.now() - lastSyncTime));
+                    syncDrift = newServerTime - expectedTime;
                 }
+                
+                lastServerTime = new Date(data.iso);
+                lastSyncTime = Date.now();
+                serverTimeEl.textContent = formatISOTime(data.iso);
+                //lastSyncEl.textContent = formatISOTime(new Date().toISOString());
+                syncStatusEl.textContent = 'Perfect sync';
+                syncStatusEl.className = 'sync-good';
             }
-
-            // Update server message
-            if (data.messages) {
-                serverMessageEl.textContent = data.messages;
-            }
-        }
-
-        // Format JSON for nice console output
-        function formatForConsole(data) {
-            console.groupCollapsed('WebSocket Message Received');
-            console.log('Timestamp:', new Date().toISOString());
-            console.log('Status:', data.status || 'Unknown');
-            console.log('Full Data:', data);
-            console.groupEnd();
             
-            // Alternative formatted output
-            console.log('%cWebSocket Data:', 'color: #4CAF50; font-weight: bold', 
-                JSON.stringify(data, null, 2));
-        }
-
-        // Update events table with new data
-        function updateEvents(data) {
-            if (data.status === "event_status" && data.events) {
-                const events = data.events;
-                
-                // Update metadata
-                eventsCountEl.textContent = `Showing ${events.length} of ${data.event_meta.size} events`;
-                eventsTagEl.textContent = data.event_meta.tag;
-                
-                // Clear existing rows
-                eventsTableBody.innerHTML = '';
-                
-                if (events.length === 0) {
-                    eventsTableBody.innerHTML = '<tr><td colspan="5" class="no-events">No upcoming events</td></tr>';
-                    return;
-                }
-                
-                // Add each event to the table
-                events.forEach(event => {
-                    const eventData = event.event;
-                    const row = document.createElement('tr');
-                    
-                    // Format event time
-                    const formattedTime = event.timestamp_iso.replace('T', ' - ');
-                    
-                    // Shorten file path for display
-                    const formattedPath = eventData.fichero ? eventData.fichero.replace(/\\\\/g, '\\') : '';
-                    
-                    row.innerHTML = `
-                        <td class="event-time">${formattedTime}</td>
-                        <td class="event-file" title="${formattedPath}">${formattedPath}</td>
-                    `;
-                    
-                    eventsTableBody.appendChild(row);
-                });
-            }
-        }
-
-        // WebSocket connection management
-        function connectWebSocket(host) {
-            const wsUrl = `wss://${host}/ws`;
-            
-            ws = new WebSocket(wsUrl);
-
-            ws.onopen = () => {
-                statusEl.textContent = `Connected to ${host}`;
-                statusEl.className = 'connected';
-                serverMessageEl.textContent = 'Waiting for first update...';
-                reconnectAttempts = 0;
-                syncStatusEl.textContent = 'Syncing time...';
-                syncStatusEl.className = 'sync-warning';
-            };
-
-            ws.onmessage = (event) => {
-                try {
-                    const data = JSON.parse(event.data);
-                    formatForConsole(data); // Log to console
-                    updateUI(data);
-                    
-                    if (data.status === 'start' || data.status === 'playing') {
-                        updateCountdown(data);
-                    }
-                    
-                    // Update events if event_status is received
-                    if (data.status === "event_status") {
-                        updateEvents(data);
-                    }
-                    
-                    // Update sync status
-                    lastSyncTime = Date.now();
-                    //lastSyncEl.textContent = formatISOTime(new Date().toISOString());
-                } catch (e) {
-                    console.error('Error parsing WebSocket message:', e);
-                }
-            };
-
-            ws.onclose = (event) => {
-                statusEl.textContent = `Disconnected from ${host}`;
-                statusEl.className = 'disconnected';
-                syncStatusEl.textContent = 'Disconnected';
-                syncStatusEl.className = 'sync-bad';
-
-                if (reconnectAttempts < maxReconnectAttempts) {
-                    reconnectAttempts++;
-                    serverMessageEl.textContent = `Reconnecting in ${reconnectDelay/1000} seconds (attempt ${reconnectAttempts}/${maxReconnectAttempts})...`;
-                    setTimeout(() => connectWebSocket(host), reconnectDelay);
-                } else {
-                    serverMessageEl.textContent = 'Connection failed. Please try another instance.';
-                }
-                
-                if (countdownInterval) {
-                    clearInterval(countdownInterval);
-                    countdownInterval = null;
-                }
-                trackTimerEl.textContent = '--:-- (disconnected)';
-            };
-
-            ws.onerror = (error) => {
-                statusEl.textContent = `Error connecting to ${host}`;
-                statusEl.className = 'disconnected';
-                syncStatusEl.textContent = 'Connection error';
-                syncStatusEl.className = 'sync-bad';
-            };
-        }
-
-        // Update UI with new data
-        function updateUI(data) {
-            // Update server time with real data
-            if (data.iso) {
-                const newServerTime = new Date(data.iso);
-
-                // If first time, set both displayed and lastServerTime
-                if (!displayedServerTime) {
-                    displayedServerTime = newServerTime;
-                    lastServerTime = newServerTime;
-                    lastSyncTime = Date.now();
-                    syncDrift = 0;
-                    serverTimeEl.textContent = formatISOTime(newServerTime.toISOString());
-                    syncStatusEl.textContent = 'Perfect sync';
-                    syncStatusEl.className = 'sync-good';
-                } else if (newServerTime < displayedServerTime) {
-                    // If new time is behind, start gradual resync
-                    startGradualResync(newServerTime);
-                    lastServerTime = newServerTime;
-                    lastSyncTime = Date.now();
-                } else {
-                    // Normal update
-                    displayedServerTime = newServerTime;
-                    lastServerTime = newServerTime;
-                    lastSyncTime = Date.now();
-                    syncDrift = 0;
-                    serverTimeEl.textContent = formatISOTime(newServerTime.toISOString());
-                    syncStatusEl.textContent = 'Perfect sync';
-                    syncStatusEl.className = 'sync-good';
-                }
-            }
-
             // Update server message
             if (data.messages) {
                 serverMessageEl.textContent = data.messages;
