@@ -819,7 +819,7 @@
                     serverTimeEl.textContent = formatISOTime(newServerTime.toISOString());
                     syncStatusEl.textContent = 'Perfect sync';
                     syncStatusEl.className = 'sync-good';
-                    console.log('Initial server time set:', displayedServerTime);
+                    console.log('TIME SYNC --- Initial server time set:', displayedServerTime);
                 } else if ((displayedServerTime - newServerTime) > 500) {
                     // If new time is behind, start gradual resync
                     //startGradualResync(newServerTime);
@@ -827,7 +827,7 @@
                     //displayedServerTime = 
                     displayedServerTime.setMilliseconds(0);
                     lastSyncTime = Date.now();
-                    console.log('Holding displayed time:', displayedServerTime);
+                    console.log('TIME SYNC --- Holding displayed time:', displayedServerTime);
                 } else {
                     // Normal update
                     displayedServerTime = newServerTime;
@@ -837,7 +837,7 @@
                     serverTimeEl.textContent = formatISOTime(newServerTime.toISOString());
                     syncStatusEl.textContent = 'Perfect sync';
                     syncStatusEl.className = 'sync-good';
-                    console.log('Synced time:', displayedServerTime);
+                    console.log('TIME SYNC --- Synced time:', displayedServerTime);
                 }
             }
 
