@@ -783,7 +783,7 @@
         function updateUI(data) {
             // Update server time with real data
             if (data.iso) {
-                const newServerTime = new Date(data.iso);
+                const newServerTime = new Date(data.utc);
 
                 // If first time, set both displayed and lastServerTime
                 if (!displayedServerTime) {
