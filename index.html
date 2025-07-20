@@ -494,11 +494,24 @@
         // Initialize when page loads
         window.addEventListener('DOMContentLoaded', () => {
             initFromURL();
-            
-           
+            initTimeSync();           
         });
+            
+        
 
-     
+
+
+
+         // Initialize time synchronization
+        function initTimeSync() {
+            // Start independent time updates
+            
+            // Start server time updates (will be corrected when we receive server time)
+            updateServerTime();
+            serverTimeInterval = setInterval(updateServerTime, 1000);
+        }
+
+
 
         // Initialize from URL parameters
         function initFromURL() {
@@ -731,7 +744,21 @@
             };
         }
 
+
+
+        function updateServerTime() {
+            // If resyncing, let the resyncInterval handle updates
+            if (resyncInterval) return;
+            if (!displayedServerTime) return;
+
+            // Only move forward in time
+            displayedServerTime = new Date(displayedServerTime.getTime() + 1000);
+            serverTimeEl.textContent = formatISOTime(displayedServerTime.toISOString().toLocaleString());
+            updateSyncStatus();
+        }
+
           // Update UI with new data
+
         function updateUI(data) {
             // Update server time with real data
             if (data.iso) {
