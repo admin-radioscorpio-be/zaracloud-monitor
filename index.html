@@ -775,7 +775,7 @@
                     syncStatusEl.textContent = 'Perfect sync';
                     syncStatusEl.className = 'sync-good';
                     console.log('TIME SYNC --- Initial server time set:', displayedServerTime);
-                } else if ((displayedServerTime - newServerTime) < -500) {
+                } else if ((displayedServerTime - newServerTime) > 500) {
                     // If new time is behind, start gradual resync
                     //startGradualResync(newServerTime);
                     //lastServerTime = newServerTime;
