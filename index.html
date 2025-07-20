@@ -771,7 +771,7 @@
                     lastServerTime = newServerTime;
                     lastSyncTime = Date.now();
                     syncDrift = 0;
-                    serverTimeEl.textContent = formatISOTime(newServerTime.toISOString()).toLocaleString();
+                    //serverTimeEl.textContent = formatISOTime(newServerTime.toISOString()).toLocaleString();
                     syncStatusEl.textContent = 'Perfect sync';
                     syncStatusEl.className = 'sync-good';
                     console.log('TIME SYNC --- Initial server time set:', displayedServerTime);
@@ -794,7 +794,7 @@
                     lastServerTime = newServerTime;
                     lastSyncTime = Date.now();
                     syncDrift = 0;
-                    serverTimeEl.textContent = formatISOTime(newServerTime.toISOString()).toLocaleString();
+                    //serverTimeEl.textContent = formatISOTime(newServerTime.toISOString()).toLocaleString();
                     syncStatusEl.textContent = 'Perfect sync';
                     syncStatusEl.className = 'sync-good';
                     //console.log('TIME SYNC --- Synced time:', displayedServerTime);
