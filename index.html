@@ -753,11 +753,17 @@
                     //startGradualResync(newServerTime);
                     //lastServerTime = newServerTime;
                     //displayedServerTime = 
+                    console.log('TIME SYNC - NORMAL --- displayed Server time:', displayedServerTime);
+                    console.log('TIME SYNC - NORMAL --- new       Server time:', newServerTime);
+                    
                     displayedServerTime.setMilliseconds(0);
                     lastSyncTime = Date.now();
                     console.log('TIME SYNC --- Holding displayed time:', displayedServerTime);
                 } else {
                     // Normal update
+                    console.log('TIME SYNC - NORMAL --- displayed Server time:', displayedServerTime);
+                    console.log('TIME SYNC - NORMAL --- new       Server time:', newServerTime);
+                    console.log('TIME SYNC - NORMAL --- difference           :', displayedServerTime - newServerTime);
                     displayedServerTime = newServerTime;
                     lastServerTime = newServerTime;
                     lastSyncTime = Date.now();
@@ -765,7 +771,7 @@
                     serverTimeEl.textContent = formatISOTime(newServerTime.toISOString()).toLocaleString();
                     syncStatusEl.textContent = 'Perfect sync';
                     syncStatusEl.className = 'sync-good';
-                    console.log('TIME SYNC --- Synced time:', displayedServerTime);
+                    //console.log('TIME SYNC --- Synced time:', displayedServerTime);
                 }
             }
 
