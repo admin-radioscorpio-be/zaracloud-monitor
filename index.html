@@ -494,7 +494,7 @@
         // Initialize when page loads
         window.addEventListener('DOMContentLoaded', () => {
             initFromURL();
-            initTimeSync();
+            
            
         });
 
@@ -550,16 +550,7 @@
             connectWebSocket(host);
         }
 
-        // Initialize time synchronization
-        function initTimeSync() {
-            // Start independent time updates
-            updateLocalTime();
-            localTimeInterval = setInterval(updateLocalTime, 1000);
-            
-            // Start server time updates (will be corrected when we receive server time)
-            updateServerTime();
-            serverTimeInterval = setInterval(updateServerTime, 1000);
-        }
+
 
         // Format seconds to MM:SS
         function formatTime(seconds) {
@@ -582,45 +573,6 @@
             return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
         }
 
-        // Update local time independently
-        function updateLocalTime() {
-            const now = new Date();
-           // localTimeEl.textContent = formatISOTime(now.toISOString());
-        }
-
-        // Update server time independently
-         // Update server time independently
-        function updateServerTime() {
-            // If resyncing, let the resyncInterval handle updates
-            if (resyncInterval) return;
-            if (!displayedServerTime) return;
-
-            // Only move forward in time
-            displayedServerTime = new Date(displayedServerTime.getTime() + 1000);
-            serverTimeEl.textContent = formatISOTime(displayedServerTime.toISOString().toLocaleString());
-            updateSyncStatus();
-        }
-
-    
-
-        // Update synchronization status display
-        function updateSyncStatus() {
-            const secondsSinceSync = Math.floor(timeSinceLastSync / 1000);
-            
-            if (secondsSinceSync < 5) {
-                syncStatusEl.textContent = 'Perfect sync';
-                syncStatusEl.className = 'sync-good';
-            } else if (secondsSinceSync < 30) {
-                syncStatusEl.textContent = `Good sync (${secondsSinceSync}s)`;
-                syncStatusEl.className = 'sync-good';
-            } else if (secondsSinceSync < 60) {
-                syncStatusEl.textContent = `Slightly out of sync (${secondsSinceSync}s)`;
-                syncStatusEl.className = 'sync-warning';
-            } else {
-                syncStatusEl.textContent = `Out of sync (${secondsSinceSync}s)`;
-                syncStatusEl.className = 'sync-bad';
-            }
-        }
 
         // Calculate and update the remaining time
         function updateTimerDisplay() {
@@ -783,7 +735,8 @@
         function updateUI(data) {
             // Update server time with real data
             if (data.iso) {
-                const newServerTime = new Date(data.utc);
+                //const newServerTime = new Date(data.iso);
+                const newServerTime = new Date(data.utc * 1000);
 
                 // If first time, set both displayed and lastServerTime
                 if (!displayedServerTime) {
