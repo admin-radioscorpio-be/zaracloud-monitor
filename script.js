@@ -28,7 +28,8 @@
         
         // Default hosts
         const instances = {
-            'radioscorpio.be': 'zaracloud.radioscorpio.be',
+            'pi.radioscorpio.be': 'zara.radioscorpio.be',
+            'cloud.radioscorpio.be': 'zaracloud.radioscorpio.be',
             'kaboutersoft.be': 'zaracloud.kaboutersoft.be'
         };
 
@@ -159,7 +160,7 @@
             } else if (instanceParam && instances[instanceParam]) {
                 connectToInstance(instanceParam, instances[instanceParam]);
             } else {
-                connectToInstance('radioscorpio.be', instances['radioscorpio.be']);
+                connectToInstance('radioscorpio.be', instances['pi.radioscorpio.be']);
             }
         }
 
