@@ -160,7 +160,7 @@
             } else if (instanceParam && instances[instanceParam]) {
                 connectToInstance(instanceParam, instances[instanceParam]);
             } else {
-                connectToInstance('radioscorpio.be', instances['cloud.radioscorpio.be']);
+                connectToInstance('radioscorpio.be', instances['pi.radioscorpio.be']);
             }
         }
 
