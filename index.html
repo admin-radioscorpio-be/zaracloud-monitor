@@ -358,8 +358,103 @@
         }
         
     </style>
-    <script>
-                const statusEl = document.getElementById('connection-status');
+   
+    
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-cloud"></i> ZaraCloud Monitor Check</h1>
+        
+            
+        </header>
+        
+        <div class="main-content">
+            <div class="panel">
+                <div class="panel-header">
+                    <i class="fas fa-broadcast-tower"></i>
+                    <h2>Connection Status</h2>
+                </div>
+                
+                <div id="connection-status" class="connecting">Connecting to zaracloud.radioscorpio.be...</div>
+
+                <div class="panel-header">
+                    <i class="fas fa-server"></i>
+                    <h2>Server Message</h2>
+                </div>
+                
+                <div id="messages-display">
+                    <div class="info-group">
+                        <div id="server-message">Waiting for connection...</div>
+                    </div>
+                </div>
+                
+            
+            </div>
+            
+            <div class="panel">
+                <div class="time-container">
+                    <div class="time-box">
+                        <div class="panel-header">
+                            <i class="fas fa-clock"></i>
+                            <h2>Server Time</h2>
+                        </div>
+                        <div id="time-display">
+                            <div id="server-time">--/--/----, --:--:--</div>
+                        </div>
+                    </div>
+                    
+                </div>
+
+                <div class="panel-header">
+                    <i class="fas fa-music"></i>
+                    <h2>Now Playing</h2>
+                </div>
+                
+                <div id="track-info">No track playing</div>
+                <div id="track-timer">--:--</div>
+                
+            
+            </div>
+            
+            <div class="panel events-panel">
+                <div class="panel-header">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h2>Upcoming Events</h2>
+                </div>
+                
+                <div class="events-meta">
+                    <div id="events-count">Showing 0 events</div>
+                    <div id="events-tag"></div>
+                </div>
+                
+                <div class="events-table-container">
+                    <table class="events-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>File</th>
+                            </tr>
+                        </thead>
+                        <tbody id="events-table-body">
+                            <tr>
+                                <td colspan="5" class="no-events">Waiting for event data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>ZaraCloud Monitoring System </p>
+        </footer>
+    </div>
+    
+   
+     <script>
+                
+        const statusEl = document.getElementById('connection-status');
         const trackTimerEl = document.getElementById('track-timer');
         const trackInfoEl = document.getElementById('track-info');
         const serverMessageEl = document.getElementById('server-message');
@@ -756,99 +851,6 @@
             }
         }
     </script>
-    
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1><i class="fas fa-cloud"></i> ZaraCloud Monitor Check</h1>
-        
-            
-        </header>
-        
-        <div class="main-content">
-            <div class="panel">
-                <div class="panel-header">
-                    <i class="fas fa-broadcast-tower"></i>
-                    <h2>Connection Status</h2>
-                </div>
-                
-                <div id="connection-status" class="connecting">Connecting to zaracloud.radioscorpio.be...</div>
-
-                <div class="panel-header">
-                    <i class="fas fa-server"></i>
-                    <h2>Server Message</h2>
-                </div>
-                
-                <div id="messages-display">
-                    <div class="info-group">
-                        <div id="server-message">Waiting for connection...</div>
-                    </div>
-                </div>
-                
-            
-            </div>
-            
-            <div class="panel">
-                <div class="time-container">
-                    <div class="time-box">
-                        <div class="panel-header">
-                            <i class="fas fa-clock"></i>
-                            <h2>Server Time</h2>
-                        </div>
-                        <div id="time-display">
-                            <div id="server-time">--/--/----, --:--:--</div>
-                        </div>
-                    </div>
-                    
-                </div>
-
-                <div class="panel-header">
-                    <i class="fas fa-music"></i>
-                    <h2>Now Playing</h2>
-                </div>
-                
-                <div id="track-info">No track playing</div>
-                <div id="track-timer">--:--</div>
-                
-            
-            </div>
-            
-            <div class="panel events-panel">
-                <div class="panel-header">
-                    <i class="fas fa-calendar-alt"></i>
-                    <h2>Upcoming Events</h2>
-                </div>
-                
-                <div class="events-meta">
-                    <div id="events-count">Showing 0 events</div>
-                    <div id="events-tag"></div>
-                </div>
-                
-                <div class="events-table-container">
-                    <table class="events-table">
-                        <thead>
-                            <tr>
-                                <th>Time</th>
-                                <th>File</th>
-                            </tr>
-                        </thead>
-                        <tbody id="events-table-body">
-                            <tr>
-                                <td colspan="5" class="no-events">Waiting for event data...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        
-        <footer>
-            <p>ZaraCloud Monitoring System </p>
-        </footer>
-    </div>
-    
-    <script src="script.js" defer></script>
 
 </body>
 </html>
